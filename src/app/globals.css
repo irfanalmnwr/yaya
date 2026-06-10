@@ -1,0 +1,626 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600;700&family=Parisienne&family=Montserrat:wght@400;700;900&display=swap');
+@import "tailwindcss";
+
+:root {
+  --bg-dark: #0f0b15; /* Deep luxury rose-dark background */
+  --bg-dark-secondary: #181121; /* Soft dusty mauve-dark */
+  --primary: #ffb3c6; /* Dreamy pastel blush pink */
+  --primary-light: #ffe5ec; /* Soft cream pink */
+  --primary-dark: #8c5a6b; /* Elegant dusty mauve rose */
+  
+  --secondary: #fefbf6; /* Warm luxury ivory cream */
+  --secondary-light: #fffaf0;
+  --secondary-dark: #b88d9f; /* Muted rose gold */
+  
+  --accent-lavender: #e8dcf0; /* Soft lavender periwinkle mauve */
+  --accent-cyan: #fbcfe8; /* Soft pink glow accent */
+  --text-light: #f8fafc; /* Warm White Text */
+  --text-muted: #a093a8;
+  --text-accent: #ffe5ec;
+  
+  --glass-border: rgba(255, 255, 255, 0.05);
+  --glass-border-rose: rgba(255, 179, 198, 0.15);
+  --glass-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+  
+  --font-serif: 'Cormorant Garamond', serif;
+  --font-sans: 'Poppins', sans-serif;
+  --font-mono: 'Montserrat', sans-serif;
+  --font-cursive: 'Parisienne', cursive;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  section {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(255,255,255,0.02);
+  }
+
+  h1 {
+    font-family: var(--font-serif);
+    font-weight: 700;
+    letter-spacing: 1px;
+    line-height: 1.15;
+  }
+
+  h2 {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(var(--primary), var(--secondary-dark));
+  border-radius: 3px;
+}
+
+/* Canvas Particles Background */
+#particle-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+#app-container {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+
+/* Custom progressive locked screens */
+.scene-hidden {
+  display: none !important;
+}
+
+.scene-locked {
+  display: none !important;
+}
+
+/* Glowing Neon Heading Effects */
+.neon-text-rose {
+  text-shadow: 0 0 10px rgba(255, 179, 198, 0.5), 0 0 25px rgba(255, 179, 198, 0.3);
+  color: var(--text-light);
+  font-family: var(--font-serif);
+}
+
+.neon-text-gold {
+  text-shadow: 0 0 10px rgba(184, 141, 159, 0.5), 0 0 25px rgba(184, 141, 159, 0.3);
+  color: var(--secondary);
+  font-family: var(--font-serif);
+}
+
+/* Dynamic Glass Card (No static structural constraints or overrides) */
+.glass-card {
+  background: rgba(18, 15, 36, 0.65);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: 28px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.glass-card:hover {
+  border-color: var(--glass-border-rose);
+  box-shadow: 0 30px 60px rgba(255, 179, 198, 0.12), var(--glass-shadow);
+}
+
+/* Buttons with cinematic aesthetics */
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: var(--text-light);
+  border: 1px solid var(--primary-light);
+  padding: 15px 32px;
+  border-radius: 50px;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+  box-shadow: 0 8px 25px rgba(255, 179, 198, 0.35);
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -50%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transform: skewX(-20deg);
+  transition: 0.75s;
+}
+
+.btn-primary:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(166, 77, 121, 0.55);
+}
+
+.btn-primary:hover::before {
+  left: 150%;
+}
+
+.btn-primary:active {
+  transform: translateY(-1px);
+}
+
+/* Bypass developers button */
+.btn-bypass {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--glass-border);
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  padding: 8px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  z-index: 1000;
+  font-family: var(--font-mono);
+  transition: all 0.3s ease;
+}
+
+.btn-bypass:hover {
+  background: var(--primary-dark);
+  color: var(--text-light);
+  border-color: var(--primary);
+}
+
+/* Sound/Music Player Estetik Vinyl floating widget */
+.music-widget {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(18, 15, 36, 0.7);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  padding: 8px 16px;
+  border-radius: 40px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 999;
+  transition: all 0.4s ease;
+  max-width: 250px;
+}
+
+.music-widget.playing .vinyl-disc {
+  animation: spin 5s linear infinite;
+  box-shadow: 0 0 15px var(--primary-light);
+}
+
+.vinyl-disc {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: url('/assets/images/music_cover.png') no-repeat center;
+  background-size: cover;
+  border: 1.5px solid var(--secondary);
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.music-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.music-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  color: var(--text-light);
+}
+
+.music-artist {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.music-controls {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.music-controls:hover {
+  background: var(--primary);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   REACT NEXT.JS COMPONENT STYLES
+   ========================================================================== */
+
+/* Ambient floating orbs */
+.ambient-orb {
+  position: fixed;
+  width: 35vw;
+  height: 35vw;
+  border-radius: 50%;
+  filter: blur(120px);
+  z-index: 1;
+  pointer-events: none;
+  animation: orbDrift 20s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.orb-rose {
+  background: radial-gradient(circle, rgba(255, 179, 198, 0.18) 0%, transparent 70%);
+  top: 10%;
+  left: -10%;
+}
+
+.orb-gold {
+  background: radial-gradient(circle, rgba(232, 220, 240, 0.12) 0%, transparent 70%);
+  bottom: 5%;
+  right: -10%;
+  animation-delay: -10s;
+}
+
+@keyframes orbDrift {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(30px, -20px) scale(1.1); }
+  100% { transform: translate(-20px, 30px) scale(0.9); }
+}
+
+/* ==========================================================================
+   MUSIC PLAYER VINYL (Floating Widget)
+   ========================================================================== */
+.music-player-floating {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.vinyl-player-outer {
+  position: relative;
+  cursor: pointer;
+  width: 56px;
+  height: 56px;
+}
+
+.vinyl-disc-body {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: conic-gradient(
+    #1a1028 0deg, #2d1a40 30deg, #1a1028 60deg,
+    #2d1a40 90deg, #1a1028 120deg, #2d1a40 150deg,
+    #1a1028 180deg, #2d1a40 210deg, #1a1028 240deg,
+    #2d1a40 270deg, #1a1028 300deg, #2d1a40 330deg, #1a1028 360deg
+  );
+  box-shadow: 0 0 12px rgba(166,77,121,0.3), 0 6px 18px rgba(0,0,0,0.5);
+  border: 1.5px solid rgba(166,77,121,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.vinyl-player-outer.playing .vinyl-disc-body {
+  animation: vinylSpin 4s linear infinite;
+}
+
+.vinyl-player-outer:hover .vinyl-disc-body {
+  box-shadow: 0 0 20px rgba(166,77,121,0.5), 0 8px 24px rgba(0,0,0,0.6);
+}
+
+@keyframes vinylSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.vinyl-groove {
+  position: absolute;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.04);
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.02), inset 0 0 0 2px rgba(255,255,255,0.02);
+}
+
+.vinyl-center-label {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--primary) 0%, var(--primary-dark) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 8px rgba(255, 179, 198, 0.5);
+}
+
+.vinyl-music-icon {
+  color: #F8F5F2;
+}
+
+.vinyl-mute-btn {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #120f24;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #E7CBA9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.vinyl-mute-btn:hover {
+  background: #A64D79;
+}
+
+.music-status-bubble {
+  background: rgba(10, 8, 20, 0.75);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(8px);
+  white-space: nowrap;
+  max-width: 200px;
+  text-align: right;
+}
+
+/* ==========================================================================
+   PHOTOBOOTH CAMERA EFFECTS
+   ========================================================================== */
+.shutter-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0);
+  border-radius: inherit;
+  z-index: 50;
+  pointer-events: none;
+  transition: background 0.1s;
+}
+
+.shutter-overlay.active {
+  background: rgba(0,0,0,0.7);
+}
+
+.flash-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0);
+  border-radius: inherit;
+  z-index: 60;
+  pointer-events: none;
+  transition: background 0.15s;
+}
+
+.flash-overlay.active {
+  background: rgba(255,255,255,0.9);
+}
+
+/* Camera filter CSS classes for live video feed */
+.filter-normal  { filter: contrast(1.02); }
+.filter-vintage { filter: sepia(0.35) contrast(1.05) saturate(1.15) hue-rotate(-10deg); }
+.filter-bw      { filter: grayscale(1) contrast(1.15) brightness(1.05); }
+.filter-dreamy  { filter: brightness(1.05) saturate(1.3) contrast(0.95) blur(0.2px); }
+.filter-retro   { filter: contrast(1.2) saturate(1.5) hue-rotate(15deg); }
+
+/* ==========================================================================
+   VHS CHAT SCANLINES OVERLAY
+   ========================================================================== */
+.vhs-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0,0,0,0) 0px,
+    rgba(0,0,0,0) 2px,
+    rgba(0,0,0,0.15) 2px,
+    rgba(0,0,0,0.15) 4px
+  );
+  pointer-events: none;
+  z-index: 10;
+  mix-blend-mode: overlay;
+}
+
+/* ==========================================================================
+   SCROLLBAR HIDDEN UTILITY
+   ========================================================================== */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* CRT TV Scanline Laser Beam Animation */
+@keyframes scanline {
+  0% {
+    top: -60px;
+  }
+  100% {
+    top: 100%;
+  }
+}
+.animate-scanline {
+  animation: scanline 6s linear infinite;
+}
+
+/* ==========================================================================
+   CINEMATIC FILM GRAIN
+   ========================================================================== */
+.film-grain {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  right: -50%;
+  bottom: -50%;
+  width: 200%;
+  height: 200%;
+  background: transparent url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.18"/%3E%3C/svg%3E') repeat;
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: 15;
+  animation: grainShift 8s steps(10) infinite;
+}
+
+@keyframes grainShift {
+  0%, 100% { transform:translate(0, 0); }
+  10% { transform:translate(-1%, -1%); }
+  20% { transform:translate(-2%, 1%); }
+  30% { transform:translate(1%, -2%); }
+  40% { transform:translate(-1%, 3%); }
+  55% { transform:translate(1%, -1%); }
+  68% { transform:translate(-2%, 2%); }
+  75% { transform:translate(3%, -3%); }
+  85% { transform:translate(-3%, 1%); }
+  92% { transform:translate(2%, -2%); }
+}
+
+/* Concentric Vinyl Pulsing Ripples */
+.vinyl-pulse-ring {
+  position: absolute;
+  inset: 0px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 179, 198, 0.3);
+  pointer-events: none;
+  opacity: 0;
+  animation: vinylPulse 3s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
+  z-index: -1;
+}
+
+.delay-0 {
+  animation-delay: 0s;
+}
+.delay-1000 {
+  animation-delay: 1s;
+}
+.delay-2000 {
+  animation-delay: 2s;
+}
+
+@keyframes vinylPulse {
+  0% {
+    transform: scale(1.0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.65;
+  }
+  100% {
+    transform: scale(1.75);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   CARD FLIP 3D UTILITIES
+   ========================================================================== */
+.perspective-1000 {
+  perspective: 1000px;
+}
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+/* Custom Scrollbar for Letter Page */
+.letter-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.letter-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 179, 198, 0.05);
+  border-radius: 2px;
+}
+.letter-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(166, 77, 121, 0.3);
+  border-radius: 2px;
+}
+.letter-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(166, 77, 121, 0.5);
+}
+
+

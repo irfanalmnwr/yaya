@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Midnight Memory — Happy Birthday Sabrina Zahra Tudinia! 🎂🌌</title>
+  <meta name="description" content="A Cinematic Birthday Experience for Sabrina Zahra Tudinia. Selamat Ulang Tahun Sayang!">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💖</text></svg>">
+</head>
+<body>
+
+  <!-- Ambient Glowing Orbs Background -->
+  <div class="ambient-orb orb-1"></div>
+  <div class="ambient-orb orb-2"></div>
+
+  <!-- Floating Canvas Stars Background -->
+  <canvas id="particle-canvas"></canvas>
+
+  <!-- Sound/Music Widget -->
+  <div class="music-widget" id="music-player-widget" style="display: none;">
+    <div class="vinyl-disc" id="vinyl-record"></div>
+    <div class="music-info">
+      <span class="music-title">Midnight Memory (Melody)</span>
+      <span class="music-artist">Instrumental Piano & Jazz</span>
+    </div>
+    <button class="music-controls" id="btn-play-pause" title="Putar/Jeda Musik">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" id="play-pause-icon">
+        <path d="M8 5v14l11-7z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="app-container">
+
+    <!-- ==========================================================================
+         SCENE 1: LOCK SCREEN & MIDNIGHT COUNTDOWN
+         ========================================================================== -->
+    <section id="countdown-screen">
+      <div class="star-aurora-bg"></div>
+      <div class="glass-card">
+        <div class="digital-clock" id="digital-clock-display">00:00:00</div>
+        
+        <h1 class="neon-text-rose">Midnight Memory</h1>
+        <p class="subtitle">Someone left you a midnight memory...</p>
+        
+        <div class="countdown-box">
+          <div class="countdown-item">
+            <span class="countdown-val" id="days">00</span>
+            <span class="countdown-label">Hari</span>
+          </div>
+          <div class="countdown-item">
+            <span class="countdown-val" id="hours">00</span>
+            <span class="countdown-label">Jam</span>
+          </div>
+          <div class="countdown-item">
+            <span class="countdown-val" id="minutes">00</span>
+            <span class="countdown-label">Menit</span>
+          </div>
+          <div class="countdown-item">
+            <span class="countdown-val" id="seconds">00</span>
+            <span class="countdown-label">Detik</span>
+          </div>
+        </div>
+        
+        <p style="margin-top: 15px; font-size: 0.85rem; color: var(--text-muted);" id="countdown-notice">
+          Membuka gerbang kenangan tepat di hari spesialmu, 16 Juni...
+        </p>
+        
+        <button class="btn-primary" id="btn-unlock-birthday" style="margin-top: 25px;">
+          Open The Memory 🌠
+        </button>
+      </div>
+      
+      <button class="btn-bypass" id="bypass-btn">Bypass Countdown (Testing)</button>
+    </section>
+
+    <!-- MAIN APP CONTENT (Initially hidden, revealed sequentially) -->
+    <main id="main-content" style="display: none;">
+
+      <!-- ==========================================================================
+           SCENE 2: BIRTHDAY CAKE & CANDLE BLOW (Scroll Locked initially)
+           ========================================================================== -->
+      <section id="birthday-wish-reveal" class="scene-active">
+        <div class="glass-card">
+          <h2 class="neon-text-gold">Make a Wish, My Love 🎂</h2>
+          <p class="subtitle">Di antara hening malam, ucapkan satu harapan di hatimu...</p>
+          
+          <div class="cake-container">
+            <!-- Minimalist SVG Cake with Flickering Candle -->
+            <svg width="200" height="200" viewBox="0 0 200 200" id="svg-cake">
+              <!-- Plate -->
+              <ellipse cx="100" cy="170" rx="80" ry="15" fill="#2d2645" />
+              <ellipse cx="100" cy="166" rx="76" ry="12" fill="#3c345c" />
+              <!-- Cake Base Layer -->
+              <rect x="40" y="100" width="120" height="60" rx="10" fill="#4d3251" />
+              <path d="M 40 120 Q 70 130 100 120 Q 130 110 160 120 L 160 160 L 40 160 Z" fill="#361f3a" />
+              <!-- Cream Drips -->
+              <path d="M 40 100 Q 50 115 60 100 Q 70 120 80 100 Q 90 115 100 100 Q 110 120 120 100 Q 130 115 140 100 Q 150 120 160 100 L 160 110 Q 150 125 140 110 Q 130 125 120 110 Q 110 125 100 110 Q 90 125 80 110 Q 70 125 60 110 Q 50 125 40 110 Z" fill="#E7CBA9" />
+              <!-- Cake Toppings / Berries -->
+              <circle cx="50" cy="95" r="7" fill="#A64D79" />
+              <circle cx="75" cy="93" r="7" fill="#A64D79" />
+              <circle cx="100" cy="92" r="7" fill="#A64D79" />
+              <circle cx="125" cy="93" r="7" fill="#A64D79" />
+              <circle cx="150" cy="95" r="7" fill="#A64D79" />
+              <!-- Candle stick -->
+              <rect x="96" y="55" width="8" height="38" rx="2" fill="#DCC6E0" />
+              <line x1="100" y1="55" x2="100" y2="48" stroke="#E7CBA9" stroke-width="2.5" />
+              <!-- Flickering Candle Flame -->
+              <path d="M 100 48 C 94 40 94 30 100 22 C 106 30 106 40 100 48 Z" fill="url(#flame-grad)" class="candle-flame" id="interactive-flame" />
+              
+              <!-- Gradient definition for candle flame -->
+              <defs>
+                <linearGradient id="flame-grad" x1="0%" y1="100%" x2="0%" y2="0%">
+                  <stop offset="0%" stop-color="#ab2929" />
+                  <stop offset="45%" stop-color="#e75c5c" />
+                  <stop offset="80%" stop-color="#E7CBA9" />
+                  <stop offset="100%" stop-color="#ffffff" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          
+          <p class="blow-hint" id="blow-hint-text">Ketuk atau swipe lilinnya untuk meniup... 🕯️</p>
+        </div>
+
+        <!-- Birthday Celebration overlay screen -->
+        <div class="happy-birthday-announcement" id="birthday-overlay-screen">
+          <h1 class="reveal-rose-big">Happy Birthday,<br>Sabrina Zahra Tudinia! 🎉</h1>
+          <p class="subtitle" style="font-size: 2rem;">Wishes do come true... 💫</p>
+          <p style="margin-top: 15px; color: var(--text-muted); font-size: 0.9rem; max-width: 400px; text-align: center; line-height: 1.6;">
+            Melodi tengah malam mulai terdengar, silakan scroll perlahan untuk membuka surat pertamamu...
+          </p>
+          <button class="btn-primary" id="btn-proceed-to-letter" style="margin-top: 30px;">
+            Read My Letter 💌
+          </button>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           SCENE 3: OPENING LETTER (Scroll Locked initially)
+           ========================================================================== -->
+      <section id="love-letter-reveal" class="scene-locked">
+        <h2 class="neon-text-rose" style="margin-bottom: 5px;">A Letter For You</h2>
+        <p class="subtitle">Sebuah surat pendek yang ditulis tulus dari hati...</p>
+        
+        <!-- Retro interactive envelope -->
+        <div class="envelope-wrapper" id="envelope-trigger">
+          <div class="envelope-flap"></div>
+          <div class="wax-seal">👑</div>
+        </div>
+
+        <!-- Handwritten letter content -->
+        <div class="letter-sheet" id="letter-content-sheet">
+          <p class="letter-text" id="typed-letter-area">
+            <!-- Typwriter effect will print contents here -->
+          </p>
+          <div style="text-align: right; margin-top: 25px; font-family: var(--font-cursive); font-size: 1.8rem; color: #a64d79;" id="letter-sender">
+            Selamanya untukmu,<br>Your Partner ❤️
+          </div>
+          <div style="text-align: center; margin-top: 30px; display: none;" id="letter-unlock-btn-container">
+            <button class="btn-primary" id="btn-proceed-to-chat" style="padding: 10px 24px; font-size: 0.75rem;">
+              Open Our Memories 🎞️
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           SCENE 4: OUR LITTLE MOVIE (FAKE CHAT VHS REPLAY)
+           ========================================================================== -->
+      <section id="vhs-chat-replay" class="scene-locked">
+        <h2 class="neon-text-rose" style="margin-bottom: 5px;">Our First Story</h2>
+        <p class="subtitle">Di mana obrolan kecil kita menjadi awal segalanya...</p>
+        
+        <div class="vhs-container">
+          <!-- VHS Scanline & Noise Filters -->
+          <div class="vhs-scanlines"></div>
+          <div class="vhs-noise"></div>
+          
+          <!-- VHS Overlay Text -->
+          <div class="vhs-overlay-text">
+            PLAY ▶<br>
+            00:00:01<br>
+            <span style="font-size: 0.55rem; opacity: 0.8;">VHS REC</span>
+          </div>
+
+          <!-- Header -->
+          <div class="vhs-header">
+            <div class="vhs-avatar">SZT</div>
+            <div class="vhs-user-info">
+              <span class="vhs-username">Sabrina Zahra Tudinia</span>
+              <span class="vhs-status">
+                <span class="status-indicator ready" id="status-dot"></span> Online
+              </span>
+            </div>
+          </div>
+
+          <!-- Chat body -->
+          <div class="vhs-chat-body" id="chat-replay-area">
+            <!-- Bubbles will be generated here -->
+          </div>
+
+          <!-- Typing bubble indicator -->
+          <div class="typing-indicator" id="chat-typing-bubble">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+        </div>
+
+        <button class="btn-primary" id="btn-proceed-to-journey" style="margin-top: 30px; display: none;">
+          Enter Our Journey 📖
+        </button>
+      </section>
+
+      <!-- ==========================================================================
+           SCENE 5: LOVE JOURNEY TIMELINE
+           ========================================================================== -->
+      <section id="love-journey" class="scene-locked">
+        <div class="timeline-section">
+          <h2 class="neon-text-rose">Our Love Journey 🎬</h2>
+          <p class="subtitle" style="text-align: center; margin-bottom: 25px;">Setiap detik bersamamu adalah adegan film terindah</p>
+          
+          <!-- Together Counter -->
+          <div class="together-counter" id="together-counter-box">
+            Kita telah mengukir memori bersama selama:<br>
+            <span id="counter-display">Loading...</span>
+          </div>
+
+          <!-- Timeline Film strip -->
+          <div class="timeline-film-strip">
+            
+            <!-- Timeline Item 1 -->
+            <div class="timeline-container left" id="timeline-node-1">
+              <div class="polaroid-card-wrapper">
+                <div class="polaroid-card" data-tilt>
+                  <div class="polaroid-img-wrapper">
+                    <img src="assets/images/cafe.png" alt="Awal Pertemuan">
+                  </div>
+                  <div class="polaroid-date">Awal Obrolan</div>
+                  <div class="polaroid-location">Kafe Favorit</div>
+                  <div class="polaroid-caption">Di mana semesta mempertemukan mata kita pertama kali... ✨</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Timeline Item 2 -->
+            <div class="timeline-container right" id="timeline-node-2">
+              <div class="polaroid-card-wrapper">
+                <div class="polaroid-card" data-tilt>
+                  <div class="polaroid-img-wrapper">
+                    <img src="assets/images/sunset.png" alt="Kencan Pertama">
+                  </div>
+                  <div class="polaroid-date">Kencan Pertama</div>
+                  <div class="polaroid-location">Tepi Pantai</div>
+                  <div class="polaroid-caption">Sore hangat yang dihabiskan berdua di tepi pantai 🌊</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Timeline Item 3 -->
+            <div class="timeline-container left" id="timeline-node-3">
+              <div class="polaroid-card-wrapper">
+                <div class="polaroid-card" data-tilt>
+                  <div class="polaroid-img-wrapper">
+                    <div style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:linear-gradient(135deg, #4d3251, #120f24); color:var(--secondary); padding:20px; text-align:center;">
+                      <span style="font-size:3rem; margin-bottom:10px;">💖</span>
+                      <p style="font-size:0.75rem; font-family:var(--font-sans); opacity: 0.8;">Beri kejutan manis lainnya di folder assets/images!</p>
+                    </div>
+                  </div>
+                  <div class="polaroid-date">Momen Terindah</div>
+                  <div class="polaroid-location">Ruang Bahagia</div>
+                  <div class="polaroid-caption">Senyuman termanismu yang selalu menenangkan jiwaku ❤️</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           SCENE 6: CASSETTE VOICE NOTE WALL
+           ========================================================================== -->
+      <section id="cassette-memories" class="scene-locked">
+        <h2 class="neon-text-gold" style="margin-bottom: 5px;">Voice Memories 🎧</h2>
+        <p class="subtitle">Klik kaset pita analog di bawah untuk mendengarkan pesan suara...</p>
+        
+        <div class="cassette-grid">
+          <!-- Cassette 1 -->
+          <div class="cassette-card" id="cassette-1">
+            <div class="cassette-tape">
+              <div class="cassette-label">SIDE A - KEPERCAYAAN</div>
+              <div class="cassette-window">
+                <div class="cassette-spindle"></div>
+                <div class="cassette-spindle"></div>
+              </div>
+            </div>
+            <span class="cassette-title">Aku Bangga Sama Kamu</span>
+            <span class="cassette-desc">Sebuah pengingat kecil di kala lelah</span>
+            <button class="btn-cassette-play" onclick="playCassette(1)" title="Mainkan Suara">▶</button>
+            <div class="waveform-visualizer">
+              <div class="waveform-bar"></div>
+              <div class="waveform-bar"></div>
+              <div class="waveform-bar"></div>
+              <div class="waveform-bar"></div>
+              <div class="waveform-bar"></div>
+              <div class="waveform-bar"></div>
+            </div>
+          </div>
+
+          <!-- Cassette 2 -->
+          <div class="cassette-card" id="cassette-2">
+            <div class="cassette-tape">
+              <div class="cassette-label">SIDE A - RASA SYUKUR</div>
+              <div class="cassette-window">
+                <div class="cassette-spindle"></div>
+                <div class="cassette-spindle"></div>
+              </div>
+            </div>
+            <span class="cassette-title">Makasih Udah Bertahan</span>
+            <span class="cassette-desc">Untuk semua hari indah yang kita lewati</span>
+            <button class="btn-cassette-play" onclick="playCassette(2)" title="Mainkan Suara">▶</button>
+            <div class="waveform-visualizer">
+              <div class="waveform-bar"></div>
+              <div class="waveform-bar"></div>
+              <div class="waveform-bar"></div>
+              <div class="waveform-bar"></div>
+              <div class="waveform-bar"></div>
+              <div class="waveform-bar"></div>
+            </div>
+          </div>
+
+          <!-- Cassette 3 -->
+          <div class="cassette-card" id="cassette-3">
+            <div class="cassette-tape">
+              <div class="cassette-label">SIDE A - RASA SAYANG</div>
+              <div class="cassette-window">
+                <div class="cassette-spindle"></div>
+                <div class="cassette-spindle"></div>
+              </div>
+            </div>
+            <span class="cassette-title">Sayang Banget Sama Kamu</span>
+            <span class="cassette-desc">Pesan tulus pengisi malam sepimu</span>
+            <button class="btn-cassette-play" onclick="playCassette(3)" title="Mainkan Suara">▶</button>
+            <div class="waveform-visualizer">
+              <div class="waveform-bar"></div>
+              <div class="waveform-bar"></div>
+              <div class="waveform-bar"></div>
+              <div class="waveform-bar"></div>
+              <div class="waveform-bar"></div>
+              <div class="waveform-bar"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           SCENE 7: KOREAN PHOTOBOOTH
+           ========================================================================== -->
+      <section id="virtual-photobooth" class="scene-locked">
+        <h2 class="neon-text-rose" style="margin-bottom: 5px;">Korean 4-Cut Photobooth 📸</h2>
+        <p class="subtitle">Bilik foto retro spesialmu. Yuk ambil momen bahagia hari ini!</p>
+        
+        <div class="photobooth-grid">
+          <!-- Left Column: Camera Shell -->
+          <div class="booth-arcade">
+            <div class="booth-header">⚡ NEON RETRO CAMERA SHUTTER ⚡</div>
+            
+            <div class="camera-screen-wrapper">
+              <video id="camera-video" autoplay playsinline class="filter-normal"></video>
+              
+              <!-- Countdown overlay -->
+              <div class="booth-countdown" id="booth-countdown-timer">3</div>
+              
+              <!-- Camera status indicator -->
+              <div class="camera-label-status">
+                <div class="status-indicator ready" id="camera-status-dot"></div>
+                <span id="camera-status-text">Kamera Siap</span>
+              </div>
+              
+              <!-- Flash and Shutter overlays -->
+              <div class="shutter-overlay" id="aperture-overlay"></div>
+              <div class="flash-overlay" id="flash-overlay-screen"></div>
+            </div>
+
+            <!-- Controller main button -->
+            <button class="btn-primary" id="btn-take-photo" style="width: 100%;">
+              Mulai Sesi Foto (4x Jepretan) 📸
+            </button>
+          </div>
+
+          <!-- Right Column: Customized Strip Customizer & Preview -->
+          <div class="studio-customizer">
+            <div class="customizer-section">
+              <div class="customizer-section-title">1. Pilih Filter Foto</div>
+              <div class="filter-picker-tray">
+                <button class="filter-btn active" onclick="applyCameraFilter('normal')">Normal</button>
+                <button class="filter-btn" onclick="applyCameraFilter('vintage')">Vintage</button>
+                <button class="filter-btn" onclick="applyCameraFilter('bw')">B & W</button>
+                <button class="filter-btn" onclick="applyCameraFilter('dreamy')">Dreamy</button>
+                <button class="filter-btn" onclick="applyCameraFilter('retro')">Retro Pop</button>
+              </div>
+            </div>
+
+            <div class="customizer-section">
+              <div class="customizer-section-title">2. Warna Kertas Frame</div>
+              <div class="frame-options">
+                <button class="color-btn active" style="background-color: #ffd2dc;" onclick="changeFrameColor('pink')"></button>
+                <button class="color-btn" style="background-color: #e6f3eb;" onclick="changeFrameColor('mint')"></button>
+                <button class="color-btn" style="background-color: #e4f0f9;" onclick="changeFrameColor('blue')"></button>
+                <button class="color-btn" style="background-color: #0c0914;" onclick="changeFrameColor('black')"></button>
+                <button class="color-btn" style="background-color: #fcfbfa;" onclick="changeFrameColor('white')"></button>
+              </div>
+            </div>
+
+            <div class="customizer-section">
+              <div class="customizer-section-title">3. Klik Stiker Menggemaskan</div>
+              <div class="sticker-tray">
+                <span class="sticker-item" onclick="spawnStiker('👑')">👑</span>
+                <span class="sticker-item" onclick="spawnStiker('🌸')">🌸</span>
+                <span class="sticker-item" onclick="spawnStiker('💖')">💖</span>
+                <span class="sticker-item" onclick="spawnStiker('🎀')">🎀</span>
+                <span class="sticker-item" onclick="spawnStiker('🧸')">🧸</span>
+                <span class="sticker-item" onclick="spawnStiker('🎂')">🎂</span>
+                <span class="sticker-item" onclick="spawnStiker('🐱')">🐱</span>
+                <span class="sticker-item" onclick="spawnStiker('💘')">💘</span>
+              </div>
+              <p style="font-size: 0.65rem; color: var(--text-muted); margin-top: 5px;">
+                * Klik stiker untuk memunculkan, lalu seret/drag di preview frame strip di bawah untuk mengatur posisi!
+              </p>
+            </div>
+
+            <!-- Preview Card Strip simulation -->
+            <div class="customizer-section">
+              <div class="customizer-section-title">Pratinjau Hasil Strip</div>
+              <div class="photo-strip-preview strip-frame-pink" id="paper-strip-preview">
+                
+                <!-- Draggable stickers container -->
+                <div class="strip-stickers-container" id="draggable-stickers-container" style="position:absolute; inset:0; pointer-events:auto; z-index:90;"></div>
+                
+                <!-- Photos slots -->
+                <div class="strip-item-preview" id="preview-slot-1">Frame 1</div>
+                <div class="strip-item-preview" id="preview-slot-2">Frame 2</div>
+                <div class="strip-item-preview" id="preview-slot-3">Frame 3</div>
+                <div class="strip-item-preview" id="preview-slot-4">Frame 4</div>
+                
+                <div class="strip-caption-preview">
+                  Sabrina's Bday
+                  <span class="strip-date-preview">16 JUNI 2026</span>
+                </div>
+              </div>
+            </div>
+
+            <button class="btn-primary" id="btn-download-strip" style="width: 100%; margin-top: 10px;" disabled>
+              Unduh Strip Foto (PNG) 💾
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           SCENE 8: SWEET QUIZ
+           ========================================================================== -->
+      <section id="sweet-popup-quiz" class="scene-locked">
+        <div class="glass-card">
+          <div class="quiz-wrapper" id="quiz-wrapper-card">
+            
+            <!-- Question 1 -->
+            <div class="quiz-card active" id="q-card-1">
+              <span class="question-num">KUIS CINTA - PERTANYAAN 1</span>
+              <p class="question-text">Di mana tempat kencan pertama kali kita menghabiskan sore yang romantis bersama?</p>
+              <div class="options-grid">
+                <button class="option-btn" onclick="submitQuizAnswer(1, 'A')">A. Kafe es krim yang bising</button>
+                <button class="option-btn" onclick="submitQuizAnswer(1, 'B')">B. Tepi pantai berpasir hangat sambil sunset 🌊</button>
+                <button class="option-btn" onclick="submitQuizAnswer(1, 'C')">C. Bioskop menonton film horor</button>
+              </div>
+            </div>
+
+            <!-- Question 2 -->
+            <div class="quiz-card" id="q-card-2">
+              <span class="question-num">KUIS CINTA - PERTANYAAN 2</span>
+              <p class="question-text">Siapa di antara kita berdua yang biasanya paling cerewet atau suka ngambek menggemaskan?</p>
+              <div class="options-grid">
+                <button class="option-btn" onclick="submitQuizAnswer(2, 'A')">A. Tentu saja Sabrina (si pacar imut) 🐱</button>
+                <button class="option-btn" onclick="submitQuizAnswer(2, 'B')">B. Saya (si pacar sabar)</button>
+                <button class="option-btn" onclick="submitQuizAnswer(2, 'C')">C. Dua-duanya sama cerewetnya!</button>
+              </div>
+            </div>
+
+            <!-- Question 3 -->
+            <div class="quiz-card" id="q-card-3">
+              <span class="question-num">KUIS CINTA - PERTANYAAN 3</span>
+              <p class="question-text">Apa hari lahir istimewa Sabrina yang selalu membawa kebahagiaan bagi dunia?</p>
+              <div class="options-grid">
+                <button class="option-btn" onclick="submitQuizAnswer(3, 'A')">A. 17 Agustus 1945</button>
+                <button class="option-btn" onclick="submitQuizAnswer(3, 'B')">B. 16 Juni 2003 (Ulang tahun hari ini!) 🎂</button>
+                <button class="option-btn" onclick="submitQuizAnswer(3, 'C')">C. 25 Desember Hari Natal</button>
+              </div>
+            </div>
+
+            <div class="quiz-feedback" id="quiz-feedback-text"></div>
+          </div>
+
+          <!-- Unlocked Trophy Badge Reward -->
+          <div class="quiz-badge-unlocked" id="quiz-reward-unlocked">
+            <span class="trophy-badge">🏆</span>
+            <h2 class="neon-text-gold">Best Partner Ever Unlocked!</h2>
+            <p class="subtitle" style="font-size: 1.5rem;">Piala Emas Penghargaan Sabrina</p>
+            <p style="max-width: 440px; margin: 0 auto 25px auto; font-size: 0.9rem; line-height: 1.6; color: var(--accent-lavender);">
+              Kamu berhasil membuktikan bahwa cinta kita penuh dengan ingatan manis yang nyata. Selamat, sayang! Scroll ke bawah untuk menyalakan bintang memori kita...
+            </p>
+            <button class="btn-primary" id="btn-proceed-to-constellation">Open Constellation 🌌</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           SCENE 9: CONSTELLATION OF MEMORIES
+           ========================================================================== -->
+      <section id="constellation-memories" class="scene-locked">
+        <h2 class="neon-text-rose" style="margin-bottom: 5px;">Constellation of Memories 🌌</h2>
+        <p class="subtitle">Nyalakan seluruh bintang kenangan untuk membentuk inisial namamu...</p>
+        
+        <div class="constellation-wrapper" id="sky-constellation-container">
+          <!-- Vector line drawings in SVG -->
+          <svg id="constellation-svg"></svg>
+          
+          <!-- Memory Popup Floating Card -->
+          <div class="memory-popup-card" id="constellation-popup-card">
+            <h4 class="memory-popup-title" id="star-memo-title">Pertemuan Pertama</h4>
+            <p class="memory-popup-text" id="star-memo-text">Klik bintang untuk menyalakan memori manis kita.</p>
+          </div>
+          
+          <!-- Stars coordinates will be injected in JS -->
+        </div>
+
+        <p class="constellation-hint" id="constellation-status-hint">
+          Ketuk 5 bintang bersinar di langit malam untuk menyalakan rasi memori kita.
+        </p>
+
+        <button class="btn-primary" id="btn-proceed-to-wish" style="margin-top: 25px; display: none;">
+          Go to Wishing Well 🌠
+        </button>
+      </section>
+
+      <!-- ==========================================================================
+           SCENE 10: STARRY WISHING WELL
+           ========================================================================== -->
+      <section id="wishing-well" class="scene-locked">
+        <div class="glass-card">
+          <h2 class="neon-text-gold">Wishing Well 🌠</h2>
+          <p class="subtitle">Kirimkan doamu ke semesta tengah malam...</p>
+          
+          <div class="wishing-well-box">
+            <textarea class="wish-textarea" id="txt-wish" rows="4" placeholder="Tulis semua doa, harapan, dan kebahagiaan yang ingin kamu wujudkan di umur barumu ini, sayang..."></textarea>
+            <button class="btn-primary" id="btn-send-wish" style="width: 100%;">
+              Luncurkan Doaku ke Langit 🚀
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           SCENE 11: MOVIE ENDING CREDITS & FOOTER
+           ========================================================================== -->
+      <section id="ending-credits" class="scene-locked">
+        <div class="credits-fade-top"></div>
+        <div class="credits-fade-bottom"></div>
+        
+        <div class="credits-viewport">
+          <div class="credit-roll-container">
+            
+            <div class="credit-section" style="margin-bottom: 20px;">
+              <span class="credit-title">A PRESENTATION BY</span>
+              <span class="credit-name">MIDNIGHT MEMORY PRODUCTION</span>
+            </div>
+
+            <div class="credit-section">
+              <span class="credit-title">THE BELOVED BIRTHDAY STAR</span>
+              <span class="credit-name">SABRINA ZAHRA TUDINIA</span>
+            </div>
+
+            <div class="credit-section">
+              <span class="credit-title">CHIEF WRITER & DESIGNER</span>
+              <span class="credit-name">YOUR PARTNER</span>
+            </div>
+
+            <div class="credit-section">
+              <span class="credit-title">CINEMATOGRAPHY & PHOTOS</span>
+              <span class="credit-name">OUR LATE NIGHT CAFE DATES</span>
+              <span class="credit-name">SUNSET BEACH MEMORIES</span>
+            </div>
+
+            <div class="credit-section">
+              <span class="credit-title">EXECUTIVE PRODUCER</span>
+              <span class="credit-name">LOVE & DESTINY</span>
+            </div>
+
+            <div class="credit-section" style="margin-top: 40px; margin-bottom: 40px;">
+              <span class="credit-title">SOUNDTRACKMelody</span>
+              <span class="credit-name" style="font-size: 1.25rem;">Canon in D & Moonlight Jazz</span>
+            </div>
+
+            <div class="credit-section">
+              <span class="credit-cursive">Thank you for existing.</span>
+              <span class="credit-cursive" style="font-size: 2rem; margin-top: 10px;">Thank you for loving me.</span>
+              <span class="credit-cursive" style="font-size: 1.6rem; color: var(--secondary);">See you in all my future birthdays.</span>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer static -->
+    <footer id="app-footer" style="display: none;">
+      <p class="footer-copy">CREATED WITH LOVE FOR THE BEST GIRL IN THE WORLD</p>
+      <div class="footer-signature">Sabrina Zahra Tudinia</div>
+      <p class="footer-copy">© 2026 MIDNIGHT MEMORY • 16 JUNI 2026</p>
+    </footer>
+
+  </div>
+
+  <!-- Loading scripts -->
+  <script src="app.js"></script>
+  <script src="photobooth.js"></script>
+</body>
+</html>
