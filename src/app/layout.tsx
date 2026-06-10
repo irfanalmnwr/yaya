@@ -3,7 +3,7 @@ import "./globals.css";
 import GlobalShell from "@/components/ui/GlobalShell";
 
 export const metadata: Metadata = {
-  title: "Midnight Memory — Happy Birthday Sabrina Zahra Tudinia! 🎂🌌",
+  title: "Happy Birthday Sabrina Zahra Tudinia! 🎂🌌",
   description: "A Cinematic Birthday Experience for Sabrina Zahra Tudinia. Selamat Ulang Tahun Sayang!",
   icons: {
     icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💖</text></svg>',
