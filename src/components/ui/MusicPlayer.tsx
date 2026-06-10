@@ -13,8 +13,10 @@ export default function MusicPlayer() {
   useEffect(() => {
     // Initialize native Audio object with hbd.mp3 served from public folder
     const audio = new Audio("/assets/music/hbd.mp3");
+    audio.autoplay = false;
     audio.loop = true;
     audio.volume = 0.55; // Set cozy ambient volume
+    audio.pause(); // Force pause to prevent browser auto-resume on load
     audioRef.current = audio;
 
     // Synchronize play state if audio plays/pauses from outside or device interruptions
@@ -41,7 +43,7 @@ export default function MusicPlayer() {
   const togglePlayback = () => {
     if (!audioRef.current) return;
 
-    if (isPlaying) {
+    if (!audioRef.current.paused) {
       audioRef.current.pause();
     } else {
       audioRef.current.play().catch((err) => {
