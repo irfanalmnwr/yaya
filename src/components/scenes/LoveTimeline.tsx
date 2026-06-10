@@ -448,25 +448,25 @@ const PageContent = ({ page, isLeft, isMobile, onProceed, playChime }: PageConte
 
     case "letter":
       return (
-        <div className="flex flex-col h-full text-left justify-between py-2">
-          <div className="flex items-center gap-1 text-[10px] uppercase font-mono tracking-widest text-pink-600 font-bold mb-2 md:mb-3">
+        <div className="flex flex-col flex-1 min-h-0 text-left justify-between py-1">
+          <div className="flex items-center gap-1 text-[10px] uppercase font-mono tracking-widest text-pink-600 font-bold mb-1.5 md:mb-3">
             <Heart size={11} className="text-pink-500 fill-pink-500/20" />
             <span>Untuk Selamanya</span>
           </div>
 
-          <h3 className="text-xl font-serif font-bold text-zinc-900 tracking-wide leading-tight mb-2 md:mb-3">
+          <h3 className="text-lg md:text-xl font-serif font-bold text-zinc-900 tracking-wide leading-tight mb-2 md:mb-3">
             {page.title}
           </h3>
 
           <div 
             onClick={(e) => e.stopPropagation()}
-            className="relative bg-pink-50/20 border border-pink-100/50 p-3 md:p-4 rounded-xl shadow-sm mb-3 md:mb-4 select-none flex-1 overflow-hidden flex flex-col"
+            className="relative bg-pink-50/40 border border-pink-200/50 shadow-[inset_0_1px_3px_rgba(255,182,193,0.1),_0_2px_12px_rgba(255,179,198,0.12)] p-3 md:p-4 rounded-xl mb-2.5 md:mb-4 select-none flex-1 overflow-hidden flex flex-col"
           >
-            <span className="text-[28px] text-pink-600 absolute top-1 right-3 leading-none opacity-20">”</span>
+            <span className="text-[28px] text-pink-600 absolute top-1 right-3 leading-none opacity-20 font-serif">”</span>
             <div className="overflow-y-auto letter-scrollbar flex-1 pr-1">
               <p 
-                style={{ ...serifStyle, lineHeight: isMobile ? "1.55" : "1.7", whiteSpace: "pre-line" }} 
-                className={`text-zinc-800 text-center py-1 italic tracking-wide ${isMobile ? "text-[14px]" : "text-[16.5px]"}`}
+                style={{ ...serifStyle, lineHeight: isMobile ? "1.45" : "1.7", whiteSpace: "pre-line" }} 
+                className={`text-zinc-800 text-center py-1 italic tracking-wide ${isMobile ? "text-[12px]" : "text-[16.5px]"}`}
               >
                 {page.letterText}
               </p>
@@ -482,7 +482,7 @@ const PageContent = ({ page, isLeft, isMobile, onProceed, playChime }: PageConte
                 playChime();
                 onProceed();
               }}
-              className="bg-gradient-to-r from-[#ffb3c6] to-[#8c5a6b] hover:from-[#ffe5ec] hover:to-[#ffb3c6] text-[#0a060d] font-bold font-sans tracking-widest text-[10px] uppercase py-3.5 px-6 rounded-xl shadow-[0_8px_20px_rgba(255,179,198,0.3)] border border-[#ffb3c6]/20 transition-all duration-300 w-full cursor-pointer flex items-center justify-center gap-1.5"
+              className="bg-gradient-to-r from-[#ffb3c6] to-[#8c5a6b] hover:from-[#ffe5ec] hover:to-[#ffb3c6] text-[#0a060d] font-bold font-sans tracking-widest text-[9.5px] md:text-[10px] uppercase py-3 px-6 rounded-xl shadow-[0_8px_20px_rgba(255,179,198,0.3)] border border-[#ffb3c6]/20 transition-all duration-300 w-full cursor-pointer flex items-center justify-center gap-1.5"
             >
               <Headphones size={13} className="text-[#0a060d]" />
               <span>Dengarkan Kaset Catatan Suaraku</span>
@@ -911,7 +911,7 @@ export default function LoveTimeline({ onProceed }: LoveTimelineProps) {
                       transition={{ duration: 0.8, ease: "easeInOut" }}
                     />
                     
-                    <div className={frontPage.type === "cover" ? "w-full h-full bg-gradient-to-b from-[#A64D79] to-[#661d43] relative" : "w-full h-full p-8 relative"}>
+                    <div className={frontPage.type === "cover" ? "w-full h-full bg-gradient-to-b from-[#A64D79] to-[#661d43] relative" : "w-full h-full p-8 relative flex flex-col min-h-0"}>
                       {isVisible && (
                         <PageContent 
                           page={frontPage} 
@@ -949,7 +949,7 @@ export default function LoveTimeline({ onProceed }: LoveTimelineProps) {
                       transition={{ duration: 0.8, ease: "easeInOut" }}
                     />
                     
-                    <div className="w-full h-full p-8 relative">
+                    <div className="w-full h-full p-8 relative flex flex-col min-h-0">
                       <div className="absolute top-0 bottom-0 left-0 w-8 bg-gradient-to-r from-zinc-950/15 to-transparent pointer-events-none z-20" />
                       {isVisible && (
                         <PageContent 
@@ -1022,7 +1022,7 @@ export default function LoveTimeline({ onProceed }: LoveTimelineProps) {
                     style={{ willChange: "opacity" }}
                   />
 
-                  <div className={PAGES_CONFIG[currentPage].type === "cover" ? "w-full h-full bg-gradient-to-b from-[#A64D79] to-[#661d43] absolute inset-0 flex flex-col justify-center items-center rounded-lg" : "flex-1 flex flex-col justify-between"}>
+                  <div className={PAGES_CONFIG[currentPage].type === "cover" ? "w-full h-full bg-gradient-to-b from-[#A64D79] to-[#661d43] absolute inset-0 flex flex-col justify-center items-center rounded-lg" : "flex-1 flex flex-col justify-between min-h-0"}>
                     <PageContent 
                       page={PAGES_CONFIG[currentPage]} 
                       isLeft={currentPage % 2 !== 0} 
