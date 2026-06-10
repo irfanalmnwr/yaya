@@ -367,6 +367,7 @@
   align-items: center;
   justify-content: center;
   transition: transform 0.3s ease;
+  will-change: transform;
 }
 
 .vinyl-player-outer.playing .vinyl-disc-body {
@@ -475,7 +476,7 @@
 }
 
 /* Camera filter CSS classes for live video feed */
-.filter-normal  { filter: contrast(1.02); }
+.filter-normal  { filter: none; }
 .filter-vintage { filter: sepia(0.35) contrast(1.05) saturate(1.15) hue-rotate(-10deg); }
 .filter-bw      { filter: grayscale(1) contrast(1.15) brightness(1.05); }
 .filter-dreamy  { filter: brightness(1.05) saturate(1.3) contrast(0.95) blur(0.2px); }
@@ -538,7 +539,6 @@
   opacity: 0.05;
   pointer-events: none;
   z-index: 15;
-  animation: grainShift 8s steps(10) infinite;
 }
 
 @keyframes grainShift {
@@ -564,6 +564,7 @@
   opacity: 0;
   animation: vinylPulse 3s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
   z-index: -1;
+  will-change: transform, opacity;
 }
 
 .delay-0 {

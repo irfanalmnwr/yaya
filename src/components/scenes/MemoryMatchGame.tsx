@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Sparkles, RefreshCw, Trophy, ArrowRight, HelpCircle, Gamepad2 } from "lucide-react";
 import confetti from "canvas-confetti";
@@ -36,12 +36,32 @@ export default function MemoryMatchGame({ onProceed }: MemoryMatchGameProps) {
   const [movesCount, setMovesCount] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
 
+  // Preloader states
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [loadingText, setLoadingText] = useState("Menyiapkan papan kenangan...");
+
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  const getAudioContext = () => {
+    if (typeof window === "undefined") return null;
+    if (!audioCtxRef.current) {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioCtx) {
+        audioCtxRef.current = new AudioCtx();
+      }
+    }
+    if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
+      audioCtxRef.current.resume();
+    }
+    return audioCtxRef.current;
+  };
+
   // Sound generator
   const playSound = (type: "flip" | "match" | "fail" | "finish") => {
     try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioCtx) return;
-      const actx = new AudioCtx();
+      const actx = getAudioContext();
+      if (!actx) return;
       const now = actx.currentTime;
 
       if (type === "flip") {
@@ -125,6 +145,62 @@ export default function MemoryMatchGame({ onProceed }: MemoryMatchGameProps) {
 
   useEffect(() => {
     initGame();
+
+    const images = memoryPairs.map((p) => p.symbol);
+    let loadedCount = 0;
+    const total = images.length;
+    let active = true;
+
+    const phrases = [
+      "Menyiapkan papan kenangan...",
+      "Mengocok kartu memori...",
+      "Menghubungkan frekuensi cinta...",
+      "Menyembunyikan foto terindah...",
+      "Game siap dimainkan!"
+    ];
+
+    images.forEach((src) => {
+      const img = new Image();
+      let isSettled = false;
+
+      const handleLoad = () => {
+        if (isSettled) return;
+        isSettled = true;
+        loadedCount++;
+        
+        if (active) {
+          const percent = Math.round((loadedCount / total) * 100);
+          setLoadingProgress(percent);
+          
+          const phraseIdx = Math.min(
+            Math.floor((loadedCount / total) * phrases.length),
+            phrases.length - 1
+          );
+          setLoadingText(phrases[phraseIdx]);
+
+          if (loadedCount === total) {
+            setTimeout(() => {
+              setIsLoading(false);
+            }, 800);
+          }
+        }
+      };
+
+      img.onload = handleLoad;
+      img.onerror = handleLoad;
+      img.src = src;
+
+      if (img.decode) {
+        img.decode().then(handleLoad).catch(handleLoad);
+      }
+    });
+
+    return () => {
+      active = false;
+      if (audioCtxRef.current) {
+        audioCtxRef.current.close().catch(() => {});
+      }
+    };
   }, []);
 
   const handleCardClick = (index: number) => {
@@ -224,13 +300,55 @@ export default function MemoryMatchGame({ onProceed }: MemoryMatchGameProps) {
     }, 400);
   };
 
+  if (isLoading) {
+    return (
+      <section className="relative flex flex-col justify-center items-center min-h-screen text-center px-4 overflow-hidden w-full select-none bg-[#0f0b15]">
+        {/* Background ambient glows */}
+        <div className="absolute inset-0 bg-radial-[circle_at_center,_#1b0f1a_0%,_#0a060d_100%] z-0" />
+        <div className="absolute top-1/4 left-1/3 w-72 h-72 bg-[#ffb3c6]/5 rounded-full filter blur-[100px] pointer-events-none" style={{ willChange: "filter" }} />
+
+        <div className="z-10 flex flex-col items-center max-w-sm w-full gap-y-6">
+          {/* Decorative spinning polaroid frame or heart */}
+          <div className="relative w-20 h-20 flex items-center justify-center">
+            <div className="absolute inset-0 border-2 border-dashed border-[#ffb3c6]/30 rounded-full animate-spin [animation-duration:10s]" />
+            <Heart size={32} className="text-[#ffb3c6] fill-[#ffb3c6] animate-pulse" />
+            <Sparkles className="absolute -top-1 -right-1 text-amber-200 animate-bounce" size={18} />
+          </div>
+
+          <div className="flex flex-col items-center gap-y-2">
+            <h3 className="font-serif text-2xl text-white font-bold tracking-wide neon-text-rose">
+              Mempersiapkan Permainan
+            </h3>
+            <p className="font-sans text-[10px] text-zinc-400 tracking-widest uppercase font-mono h-4">
+              {loadingText}
+            </p>
+          </div>
+
+          {/* Loading Progress Bar Container */}
+          <div className="w-full h-1.5 bg-pink-950/40 rounded-full overflow-hidden border border-[#ffb3c6]/10 p-[1px]">
+            <motion.div 
+              className="h-full bg-gradient-to-r from-[#ffb3c6] to-[#8c5a6b] rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${loadingProgress}%` }}
+              transition={{ ease: "easeOut", duration: 0.2 }}
+            />
+          </div>
+
+          <span className="font-mono text-xs text-[#ffb3c6] font-bold">
+            {loadingProgress}%
+          </span>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section id="memory-match-scene" className="relative flex flex-col justify-center items-center min-h-screen text-center px-4 md:px-12 py-24 md:py-32 overflow-hidden w-full select-none">
       
       {/* Deep luxury ambient backgrounds */}
       <div className="absolute inset-0 bg-radial-[circle_at_center,_#1b0f1a_0%,_#0a060d_100%] z-0" />
-      <div className="absolute top-1/4 left-1/3 w-80 h-80 bg-[#ffb3c6]/5 rounded-full filter blur-[110px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-[#8c5a6b]/5 rounded-full filter blur-[130px] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/3 w-80 h-80 bg-[#ffb3c6]/5 rounded-full filter blur-[110px] pointer-events-none" style={{ willChange: "filter" }} />
+      <div className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-[#8c5a6b]/5 rounded-full filter blur-[130px] pointer-events-none" style={{ willChange: "filter" }} />
 
       <div className="z-10 flex flex-col items-center w-full max-w-2xl gap-y-8 md:gap-y-10">
         
@@ -285,12 +403,20 @@ export default function MemoryMatchGame({ onProceed }: MemoryMatchGameProps) {
                 {/* 3D card wrapper */}
                 <motion.div
                   className="w-full h-full relative preserve-3d"
+                  style={{ willChange: "transform" }}
                   animate={{ rotateY: isShown ? 180 : 0 }}
                   transition={{ duration: 0.45, ease: "easeOut" }}
                 >
                   {/* Card Back Face (Hidden Face) */}
-                  <div className="absolute inset-0 backface-hidden rounded-xl bg-gradient-to-br from-[#2a1727] to-[#120810] border border-white/5 shadow-inner flex items-center justify-center group-hover:border-[#ffb3c6]/30 group-hover:shadow-[0_0_15px_rgba(255,179,198,0.2)] transition-all">
-                    <HelpCircle size={22} className="text-[#ffb3c6]/35 group-hover:scale-110 group-hover:text-[#ffb3c6]/70 transition-all duration-300" />
+                  <div 
+                    className="absolute inset-0 backface-hidden rounded-xl bg-gradient-to-br from-[#2a1727] to-[#120810] border border-white/5 shadow-inner flex items-center justify-center group-hover:border-[#ffb3c6]/30 group-hover:shadow-[0_0_15px_rgba(255,179,198,0.2)]"
+                    style={{ transition: "border-color 0.3s ease, box-shadow 0.3s ease" }}
+                  >
+                    <HelpCircle 
+                      size={22} 
+                      className="text-[#ffb3c6]/35 group-hover:scale-110 group-hover:text-[#ffb3c6]/70" 
+                      style={{ transition: "transform 0.3s ease, color 0.3s ease" }}
+                    />
                   </div>
 
                   {/* Card Front Face (Revealed Emojis/Symbols) */}
@@ -307,9 +433,11 @@ export default function MemoryMatchGame({ onProceed }: MemoryMatchGameProps) {
                     <img 
                       src={card.symbol} 
                       alt="Memory" 
-                      className={`w-full h-full object-cover rounded-xl relative z-10 transition-all duration-300 ${
+                      decoding="async"
+                      className={`w-full h-full object-cover rounded-xl relative z-10 ${
                         card.isMatched ? "opacity-75 grayscale-[20%]" : "opacity-100"
                       }`} 
+                      style={{ transition: "opacity 0.3s ease, filter 0.3s ease" }}
                     />
                   </div>
                 </motion.div>

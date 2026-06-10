@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, Heart, MapPin, Sparkles, Headphones, Coffee, ChevronLeft, ChevronRight, BookOpen, Music } from "lucide-react";
 
@@ -204,16 +204,73 @@ const PAGES_CONFIG = [
 // ========================================================
 // SCENE PAGE CONTENT RENDERER
 // ========================================================
+const TimeCounter = () => {
+  const [duration, setDuration] = useState({ days: 0, hours: 0, mins: 0, secs: 0 });
+
+  useEffect(() => {
+    const anniversaryDate = new Date("August 31, 2025 19:00:00").getTime();
+
+    const updateCounter = () => {
+      const now = new Date().getTime();
+      const difference = now - anniversaryDate;
+
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const mins = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      const secs = Math.floor((difference % (1000 * 60)) / 1000);
+
+      setDuration({ days, hours, mins, secs });
+    };
+
+    updateCounter();
+    const interval = setInterval(updateCounter, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div 
+      className="relative w-full bg-gradient-to-br from-[#fffdf0] to-[#fffbc7] border border-[#e6de95] p-5 rounded-md shadow-md flex flex-col justify-center items-center mt-auto mb-2 text-center"
+      style={{ transform: "rotate(1.5deg)" }}
+    >
+      <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-4 bg-pink-400/20 backdrop-blur-sm shadow-sm" />
+      
+      <div className="flex items-center gap-1.5 mb-3 select-none">
+        <Heart size={11} className="text-pink-600 fill-pink-600 animate-pulse" />
+        <span className="text-[8px] uppercase font-mono tracking-[0.15em] text-zinc-700 font-bold">
+          Waktu Bersama
+        </span>
+      </div>
+
+      <div className="grid grid-cols-4 gap-2.5 w-full">
+        {[
+          { label: "Hari", value: duration.days },
+          { label: "Jam", value: duration.hours },
+          { label: "Meni", value: duration.mins },
+          { label: "Deti", value: duration.secs },
+        ].map((item, idx) => (
+          <div key={idx} className="flex flex-col items-center justify-center bg-[#fcf9d4]/60 border border-[#e0d680]/30 rounded-lg py-2">
+            <span className="text-lg font-mono font-bold text-zinc-800">
+              {item.value.toString().padStart(2, "0")}
+            </span>
+            <span className="text-[7.5px] text-zinc-500 uppercase tracking-widest mt-0.5 font-sans font-medium">
+              {item.label}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 interface PageContentProps {
   page: typeof PAGES_CONFIG[number];
   isLeft: boolean;
   isMobile: boolean;
-  duration: { days: number; hours: number; mins: number; secs: number };
   onProceed: () => void;
   playChime: () => void;
 }
 
-const PageContent = ({ page, isLeft, isMobile, duration, onProceed, playChime }: PageContentProps) => {
+const PageContent = ({ page, isLeft, isMobile, onProceed, playChime }: PageContentProps) => {
   const cursiveStyle = { fontFamily: "var(--font-cursive)" };
   const serifStyle = { fontFamily: "var(--font-serif)" };
 
@@ -260,37 +317,7 @@ const PageContent = ({ page, isLeft, isMobile, duration, onProceed, playChime }:
             {page.description}
           </p>
 
-          <div 
-            className="relative w-full bg-gradient-to-br from-[#fffdf0] to-[#fffbc7] border border-[#e6de95] p-5 rounded-md shadow-md flex flex-col justify-center items-center mt-auto mb-2 text-center"
-            style={{ transform: "rotate(1.5deg)" }}
-          >
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-4 bg-pink-400/20 backdrop-blur-sm shadow-sm" />
-            
-            <div className="flex items-center gap-1.5 mb-3 select-none">
-              <Heart size={11} className="text-pink-600 fill-pink-600 animate-pulse" />
-              <span className="text-[8px] uppercase font-mono tracking-[0.15em] text-zinc-700 font-bold">
-                Waktu Bersama
-              </span>
-            </div>
-
-            <div className="grid grid-cols-4 gap-2.5 w-full">
-              {[
-                { label: "Hari", value: duration.days },
-                { label: "Jam", value: duration.hours },
-                { label: "Meni", value: duration.mins },
-                { label: "Deti", value: duration.secs },
-              ].map((item, idx) => (
-                <div key={idx} className="flex flex-col items-center justify-center bg-[#fcf9d4]/60 border border-[#e0d680]/30 rounded-lg py-2">
-                  <span className="text-lg font-mono font-bold text-zinc-800">
-                    {item.value.toString().padStart(2, "0")}
-                  </span>
-                  <span className="text-[7.5px] text-zinc-500 uppercase tracking-widest mt-0.5 font-sans font-medium">
-                    {item.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <TimeCounter />
         </div>
       );
 
@@ -475,33 +502,27 @@ const PageContent = ({ page, isLeft, isMobile, duration, onProceed, playChime }:
 const mobilePageVariants = {
   initial: (dir: number) => ({
     rotateY: dir > 0 ? 90 : -90,
-    scaleX: 0.9,
-    skewY: dir > 0 ? 5 : -5,
     z: 0,
     opacity: 0,
     transformOrigin: "left center"
   }),
   animate: {
     rotateY: 0,
-    scaleX: 1,
-    skewY: 0,
     z: 0,
     opacity: 1,
     transformOrigin: "left center",
     transition: {
-      duration: 0.6,
+      duration: 0.5,
       ease: [0.25, 1, 0.5, 1] as [number, number, number, number]
     }
   },
   exit: (dir: number) => ({
     rotateY: dir > 0 ? -90 : 90,
-    scaleX: 0.9,
-    skewY: dir > 0 ? -5 : 5,
-    z: 30,
+    z: 10,
     opacity: 0,
     transformOrigin: "left center",
     transition: {
-      duration: 0.6,
+      duration: 0.5,
       ease: [0.25, 1, 0.5, 1] as [number, number, number, number]
     }
   })
@@ -510,47 +531,98 @@ const mobilePageVariants = {
 export default function LoveTimeline({ onProceed }: LoveTimelineProps) {
   const [currentPage, setCurrentPage] = useState(0); // 0 to PAGES_CONFIG.length - 1
   const [flippingSheet, setFlippingSheet] = useState<number | null>(null);
-  const [duration, setDuration] = useState({ days: 0, hours: 0, mins: 0, secs: 0 });
   const [direction, setDirection] = useState(1);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  // Preloader states
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [loadingText, setLoadingText] = useState("Membuka album kenangan...");
+
+  const getAudioContext = () => {
+    if (typeof window === "undefined") return null;
+    if (!audioCtxRef.current) {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioCtx) {
+        audioCtxRef.current = new AudioCtx();
+      }
+    }
+    if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
+      audioCtxRef.current.resume();
+    }
+    return audioCtxRef.current;
+  };
 
   // Preload and decode images at startup to prevent delayed renders during page flips
   useEffect(() => {
+    const images: string[] = [];
     PAGES_CONFIG.forEach((page) => {
-      if ((page.type === "photo" || page.type === "playlist") && page.image) {
-        const img = new Image();
-        img.src = page.image;
-        img.decode?.().catch((err) => {
-          console.warn("Failed to decode image:", page.image, err);
-        });
+      if (page.image) images.push(page.image);
+      if ((page as any).image2) images.push((page as any).image2);
+    });
+
+    if (images.length === 0) {
+      setIsLoading(false);
+      return;
+    }
+
+    let loadedCount = 0;
+    const total = images.length;
+    let active = true;
+
+    const phrases = [
+      "Mengumpulkan momen-momen manis...",
+      "Merapikan halaman lembar demi lembar...",
+      "Mempersiapkan musik latar romantis...",
+      "Menyusun foto wisuda & jalan-jalan...",
+      "Hampir selesai, bersiap mengenang cerita kita..."
+    ];
+
+    images.forEach((src) => {
+      const img = new Image();
+      let isSettled = false;
+
+      const handleLoad = () => {
+        if (isSettled) return;
+        isSettled = true;
+        loadedCount++;
+        
+        if (active) {
+          const percent = Math.round((loadedCount / total) * 100);
+          setLoadingProgress(percent);
+          
+          const phraseIdx = Math.min(
+            Math.floor((loadedCount / total) * phrases.length),
+            phrases.length - 1
+          );
+          setLoadingText(phrases[phraseIdx]);
+
+          if (loadedCount === total) {
+            setTimeout(() => {
+              setIsLoading(false);
+            }, 800);
+          }
+        }
+      };
+
+      img.onload = handleLoad;
+      img.onerror = handleLoad;
+      img.src = src;
+
+      if (img.decode) {
+        img.decode().then(handleLoad).catch(handleLoad);
       }
     });
-  }, []);
 
-  useEffect(() => {
-    const anniversaryDate = new Date("August 31, 2025 19:00:00").getTime();
-
-    const updateCounter = () => {
-      const now = new Date().getTime();
-      const difference = now - anniversaryDate;
-
-      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const mins = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-      const secs = Math.floor((difference % (1000 * 60)) / 1000);
-
-      setDuration({ days, hours, mins, secs });
+    return () => {
+      active = false;
     };
-
-    updateCounter();
-    const interval = setInterval(updateCounter, 1000);
-    return () => clearInterval(interval);
   }, []);
 
   const playChime = () => {
     try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioCtx) return;
-      const actx = new AudioCtx();
+      const actx = getAudioContext();
+      if (!actx) return;
       const now = actx.currentTime;
       
       const freqs = [659.25, 783.99, 1046.50];
@@ -627,6 +699,48 @@ export default function LoveTimeline({ onProceed }: LoveTimelineProps) {
   };
 
   const paperGridBackground = "radial-gradient(rgba(0,0,0,0.06) 1.2px, transparent 1.2px)";
+
+  if (isLoading) {
+    return (
+      <section className="relative flex flex-col justify-center items-center min-h-screen text-center px-4 overflow-hidden w-full select-none bg-[#0f0b15]">
+        {/* Background ambient glows */}
+        <div className="absolute inset-0 bg-radial-[circle_at_center,_#1b0f1a_0%,_#0a060d_100%] z-0" />
+        <div className="absolute top-1/4 left-1/3 w-72 h-72 bg-[#ffb3c6]/5 rounded-full filter blur-[100px] pointer-events-none" style={{ willChange: "filter" }} />
+
+        <div className="z-10 flex flex-col items-center max-w-sm w-full gap-y-6">
+          {/* Decorative spinning polaroid frame or heart */}
+          <div className="relative w-20 h-20 flex items-center justify-center">
+            <div className="absolute inset-0 border-2 border-dashed border-[#ffb3c6]/30 rounded-full animate-spin [animation-duration:10s]" />
+            <Heart size={32} className="text-[#ffb3c6] fill-[#ffb3c6] animate-pulse" />
+            <Sparkles className="absolute -top-1 -right-1 text-amber-200 animate-bounce" size={18} />
+          </div>
+
+          <div className="flex flex-col items-center gap-y-2">
+            <h3 className="font-serif text-2xl text-white font-bold tracking-wide neon-text-rose">
+              Membuka Lembaran Kenangan
+            </h3>
+            <p className="font-sans text-[10px] text-zinc-400 tracking-widest uppercase font-mono h-4">
+              {loadingText}
+            </p>
+          </div>
+
+          {/* Loading Progress Bar Container */}
+          <div className="w-full h-1.5 bg-pink-950/40 rounded-full overflow-hidden border border-[#ffb3c6]/10 p-[1px]">
+            <motion.div 
+              className="h-full bg-gradient-to-r from-[#ffb3c6] to-[#8c5a6b] rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${loadingProgress}%` }}
+              transition={{ ease: "easeOut", duration: 0.2 }}
+            />
+          </div>
+
+          <span className="font-mono text-xs text-[#ffb3c6] font-bold">
+            {loadingProgress}%
+          </span>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="love-journey" className="relative flex flex-col justify-center items-center min-h-screen text-center py-20 md:py-28 px-4 md:px-12 overflow-hidden select-none w-full">
@@ -756,12 +870,10 @@ export default function LoveTimeline({ onProceed }: LoveTimelineProps) {
                   }}
                   animate={{
                     rotateY: isFlipped ? -180 : 0,
-                    z: flippingSheet === i ? [0, 60, 0] : 0,
-                    scaleX: flippingSheet === i ? [1, 0.92, 1] : 1,
-                    skewY: flippingSheet === i ? [0, direction * -4, 0] : 0,
+                    z: flippingSheet === i ? 25 : 0,
                   }}
                   transition={{
-                    duration: 0.8,
+                    duration: 0.7,
                     ease: [0.25, 1, 0.5, 1],
                   }}
                   style={{
@@ -800,14 +912,15 @@ export default function LoveTimeline({ onProceed }: LoveTimelineProps) {
                     />
                     
                     <div className={frontPage.type === "cover" ? "w-full h-full bg-gradient-to-b from-[#A64D79] to-[#661d43] relative" : "w-full h-full p-8 relative"}>
-                      <PageContent 
-                        page={frontPage} 
-                        isLeft={false} 
-                        isMobile={false} 
-                        duration={duration} 
-                        onProceed={onProceed} 
-                        playChime={playChime} 
-                      />
+                      {isVisible && (
+                        <PageContent 
+                          page={frontPage} 
+                          isLeft={false} 
+                          isMobile={false} 
+                          onProceed={onProceed} 
+                          playChime={playChime} 
+                        />
+                      )}
                     </div>
                   </div>
 
@@ -838,14 +951,15 @@ export default function LoveTimeline({ onProceed }: LoveTimelineProps) {
                     
                     <div className="w-full h-full p-8 relative">
                       <div className="absolute top-0 bottom-0 left-0 w-8 bg-gradient-to-r from-zinc-950/15 to-transparent pointer-events-none z-20" />
-                      <PageContent 
-                        page={backPage} 
-                        isLeft={true} 
-                        isMobile={false} 
-                        duration={duration} 
-                        onProceed={onProceed} 
-                        playChime={playChime} 
-                      />
+                      {isVisible && (
+                        <PageContent 
+                          page={backPage} 
+                          isLeft={true} 
+                          isMobile={false} 
+                          onProceed={onProceed} 
+                          playChime={playChime} 
+                        />
+                      )}
                     </div>
                   </div>
                 </motion.div>
@@ -892,7 +1006,7 @@ export default function LoveTimeline({ onProceed }: LoveTimelineProps) {
                     transformStyle: "preserve-3d",
                     backgroundImage: paperGridBackground,
                     backgroundSize: "16px 16px",
-                    willChange: "transform",
+                    willChange: "transform, opacity",
                     boxShadow: "0 8px 24px rgba(0,0,0,0.15)"
                   }}
                   className="absolute inset-y-0 left-4 right-0 flex flex-col p-5 bg-[#fbf9f5] rounded-lg border border-zinc-300/80 shadow-md pl-6"
@@ -904,16 +1018,8 @@ export default function LoveTimeline({ onProceed }: LoveTimelineProps) {
                     initial={{ opacity: 0.35 }}
                     animate={{ opacity: 0 }}
                     exit={{ opacity: 0.35 }}
-                    transition={{ duration: 0.6 }}
-                  />
-
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none z-30"
-                    initial={{ x: direction > 0 ? "-100%" : "100%" }}
-                    animate={{
-                      x: ["-100%", "100%"]
-                    }}
-                    transition={{ duration: 0.6, ease: "easeInOut" }}
+                    transition={{ duration: 0.5 }}
+                    style={{ willChange: "opacity" }}
                   />
 
                   <div className={PAGES_CONFIG[currentPage].type === "cover" ? "w-full h-full bg-gradient-to-b from-[#A64D79] to-[#661d43] absolute inset-0 flex flex-col justify-center items-center rounded-lg" : "flex-1 flex flex-col justify-between"}>
@@ -921,7 +1027,6 @@ export default function LoveTimeline({ onProceed }: LoveTimelineProps) {
                       page={PAGES_CONFIG[currentPage]} 
                       isLeft={currentPage % 2 !== 0} 
                       isMobile={true} 
-                      duration={duration} 
                       onProceed={onProceed} 
                       playChime={playChime} 
                     />

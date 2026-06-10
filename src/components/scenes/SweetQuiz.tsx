@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, XCircle, ChevronRight, Trophy, Sparkles, Heart } from "lucide-react";
 
@@ -21,6 +21,8 @@ interface SakuraParticle {
   size: number;
   duration: number;
   angle: number;
+  tx: number; // target percentage x offset
+  ty: number; // target percentage y offset
 }
 
 export default function SweetQuiz({ onProceed }: SweetQuizProps) {
@@ -30,6 +32,31 @@ export default function SweetQuiz({ onProceed }: SweetQuizProps) {
   const [isCorrect, setIsCorrect] = useState(false);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [sakuraParticles, setSakuraParticles] = useState<SakuraParticle[]>([]);
+
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  const getAudioContext = () => {
+    if (typeof window === "undefined") return null;
+    if (!audioCtxRef.current) {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioCtx) {
+        audioCtxRef.current = new AudioCtx();
+      }
+    }
+    if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
+      audioCtxRef.current.resume();
+    }
+    return audioCtxRef.current;
+  };
+
+  useEffect(() => {
+    return () => {
+      if (audioCtxRef.current) {
+        audioCtxRef.current.close().catch(() => {});
+        audioCtxRef.current = null;
+      }
+    };
+  }, []);
 
   const questions: Question[] = [
     {
@@ -63,9 +90,8 @@ export default function SweetQuiz({ onProceed }: SweetQuizProps) {
 
   const playAnswerSound = (correct: boolean) => {
     try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioCtx) return;
-      const actx = new AudioCtx();
+      const actx = getAudioContext();
+      if (!actx) return;
       const now = actx.currentTime;
       
       if (correct) {
@@ -103,13 +129,21 @@ export default function SweetQuiz({ onProceed }: SweetQuizProps) {
     const particles: SakuraParticle[] = [];
     // Spawn 16 sakura petals flying outward
     for (let i = 0; i < 16; i++) {
+      const angle = -30 - Math.random() * 120; // upwards arc
+      const rad = (angle * Math.PI) / 180;
+      const distance = 15 + Math.random() * 12; // 15% to 27% screen size
+      const tx = Math.cos(rad) * distance;
+      const ty = Math.sin(rad) * distance;
+
       particles.push({
         id: Date.now() + i + Math.random(),
         x: 40 + Math.random() * 20, // origin near center
         y: 45 + Math.random() * 10,
         size: 14 + Math.random() * 16,
         duration: 0.8 + Math.random() * 0.6,
-        angle: -30 - Math.random() * 120 // upwards arc
+        angle: angle,
+        tx: tx,
+        ty: ty
       });
     }
     setSakuraParticles(particles);
@@ -163,19 +197,14 @@ export default function SweetQuiz({ onProceed }: SweetQuizProps) {
       <div className="absolute inset-0 pointer-events-none z-30 overflow-hidden">
         <AnimatePresence>
           {sakuraParticles.map((p) => {
-            const rad = (p.angle * Math.PI) / 180;
-            const distance = 160 + Math.random() * 100;
-            const tx = Math.cos(rad) * distance;
-            const ty = Math.sin(rad) * distance;
-
             return (
               <motion.div
                 key={p.id}
                 initial={{ opacity: 0, x: `${p.x}%`, y: `${p.y}%`, scale: 0.4 }}
                 animate={{ 
                   opacity: [0, 1, 0.8, 0],
-                  x: [`${p.x}%`, `${p.x + (tx / window.innerWidth) * 100}%`],
-                  y: [`${p.y}%`, `${p.y + (ty / window.innerHeight) * 100}%`],
+                  x: [`${p.x}%`, `${p.x + p.tx}%`],
+                  y: [`${p.y}%`, `${p.y + p.ty}%`],
                   scale: [0.4, 1.2, 1, 0.6]
                 }}
                 exit={{ opacity: 0 }}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, memo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Compass, Sparkles, Flame, Heart } from "lucide-react";
 
@@ -22,11 +22,64 @@ interface SecretFlower {
   secret: string;
 }
 
-export default function WishingWell({ onProceed }: WishingWellProps) {
+interface WishFormProps {
+  onLaunch: (text: string) => void;
+}
+
+const WishForm = memo(function WishForm({ onLaunch }: WishFormProps) {
   const [wishText, setWishText] = useState("");
+
+  const handleLaunch = () => {
+    if (!wishText.trim()) return;
+    onLaunch(wishText.trim());
+    setWishText("");
+  };
+
+  return (
+    <>
+      {/* Form Input Area */}
+      <div className="flex flex-col text-left w-full">
+        <textarea
+          value={wishText}
+          onChange={(e) => setWishText(e.target.value)}
+          placeholder="Tuliskan doa manis dan harapan terindahmu untuk Sabrina di sini... ✨"
+          className="w-full bg-zinc-950/40 border border-zinc-800/80 focus:border-[#ffb3c6] focus:ring-1 focus:ring-[#ffb3c6]/30 rounded-2xl px-5 py-4 text-[#F8F5F2] font-sans text-xs md:text-sm leading-relaxed resize-none outline-none transition-all duration-300 placeholder-zinc-600 min-h-[110px]"
+          maxLength={160}
+        />
+      </div>
+
+      <div className="flex justify-between items-center select-none w-full">
+        <span className="text-[10px] font-mono text-zinc-500">
+          {wishText.length} / 160 karakter
+        </span>
+        
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={handleLaunch}
+          disabled={!wishText.trim()}
+          className="bg-gradient-to-r from-[#ffb3c6] to-[#8c5a6b] hover:from-[#ffe5ec] hover:to-[#ffb3c6] disabled:from-zinc-900 disabled:to-zinc-900 disabled:text-zinc-650 disabled:cursor-not-allowed border border-[#ffb3c6]/20 text-[#0a060d] font-bold py-3 px-6 rounded-full flex items-center gap-2 text-xs shadow-[0_6px_20px_rgba(255,179,198,0.25)] transition-all duration-300 uppercase tracking-wider font-mono cursor-pointer"
+        >
+          <Flame size={13} />
+          <span>Luncurkan Doa</span>
+        </motion.button>
+      </div>
+    </>
+  );
+});
+
+export default function WishingWell({ onProceed }: WishingWellProps) {
   const [lanterns, setLanterns] = useState<Lantern[]>([]);
   const [hasWished, setHasWished] = useState(false);
   const [activeFlowerId, setActiveFlowerId] = useState<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const secretFlowers: SecretFlower[] = [
     {
@@ -76,18 +129,16 @@ export default function WishingWell({ onProceed }: WishingWellProps) {
     } catch (e) {}
   };
 
-  const handleLaunchWish = () => {
-    if (!wishText.trim()) return;
+  const handleLaunchWish = (text: string) => {
     playWishSound();
     
     const newLantern: Lantern = {
       id: Date.now(),
-      text: wishText.trim(),
+      text,
       x: 15 + Math.random() * 70, // percentage horizontal placement across viewport
     };
 
     setLanterns((prev) => [...prev, newLantern]);
-    setWishText("");
     setHasWished(true);
 
     // Remove lantern after it floats out of bounds (6.5 seconds)
@@ -125,10 +176,16 @@ export default function WishingWell({ onProceed }: WishingWellProps) {
               }}
               transition={{ duration: 6.5, ease: "easeOut" }}
               className="absolute flex flex-col items-center gap-2"
+              style={{ willChange: "transform, opacity" }}
             >
               {/* Beautiful glowing floating water lily / lotus blossom in soft pink */}
-              <div className="relative w-16 h-16 flex flex-col items-center justify-center">
-                <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_0_15px_rgba(255,179,198,0.75)]">
+              <div 
+                className="relative w-16 h-16 flex flex-col items-center justify-center"
+                style={{
+                  filter: isMobile ? "none" : "drop-shadow(0 0 12px rgba(255,179,198,0.65))"
+                }}
+              >
+                <svg viewBox="0 0 100 100" className="w-full h-full">
                   {/* Outer Lotus petals */}
                   <path d="M 50 15 C 30 45, 15 65, 50 85 C 85 65, 70 45, 50 15 Z" fill="#ffb3c6" opacity="0.85" />
                   <path d="M 50 30 C 35 55, 25 70, 50 85 C 75 70, 65 55, 50 30 Z" fill="#ffe5ec" opacity="0.9" />
@@ -136,7 +193,7 @@ export default function WishingWell({ onProceed }: WishingWellProps) {
                   {/* Lotus pad leaves at bottom */}
                   <path d="M 15 80 C 30 90, 70 90, 85 80 C 70 95, 30 95, 15 80 Z" fill="#8c5a6b" opacity="0.6" />
                   {/* Center warm glowing candle flame */}
-                  <circle cx="50" cy="72" r="8" fill="#fef08a" style={{ filter: "drop-shadow(0 0 6px #eab308)" }} />
+                  <circle cx="50" cy="72" r="8" fill="#fef08a" style={isMobile ? {} : { filter: "drop-shadow(0 0 6px #eab308)" }} />
                   <path d="M 50 60 C 47 66, 47 70, 50 72 C 53 70, 53 66, 50 60 Z" fill="#f97316" />
                 </svg>
               </div>
@@ -207,9 +264,10 @@ export default function WishingWell({ onProceed }: WishingWellProps) {
                         animate={{ opacity: 0.6, scale: 1.25, rotate: 360 }}
                         exit={{ opacity: 0, scale: 0.6 }}
                         transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                        className="absolute inset-0 rounded-full pointer-events-none filter blur-[6px]"
+                        className="absolute inset-0 rounded-full pointer-events-none"
                         style={{
-                          background: `radial-gradient(circle, ${flower.flowerColor}55 0%, transparent 70%)`
+                          background: `radial-gradient(circle, ${flower.flowerColor}55 0%, transparent 70%)`,
+                          willChange: "transform"
                         }}
                       />
                     )}
@@ -391,10 +449,20 @@ export default function WishingWell({ onProceed }: WishingWellProps) {
               {/* Rotating conic gradient stardust swirl */}
               <div 
                 className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent,#ffb3c6,#ffe5ec,transparent)] opacity-40 animate-spin" 
-                style={{ animationDuration: "14s", filter: "blur(6px)" }} 
+                style={{ 
+                  animationDuration: "14s", 
+                  filter: isMobile ? "none" : "blur(6px)",
+                  willChange: "transform"
+                }} 
               />
               <div className="absolute inset-4 rounded-full bg-black/40 border border-zinc-800 flex items-center justify-center">
-                <Sparkles className="w-10 h-10 text-[#ffb3c6] animate-spin" style={{ animationDuration: "8s" }} />
+                <Sparkles 
+                  className="w-10 h-10 text-[#ffb3c6] animate-spin" 
+                  style={{ 
+                    animationDuration: "8s",
+                    willChange: "transform"
+                  }} 
+                />
               </div>
             </div>
 
@@ -403,33 +471,7 @@ export default function WishingWell({ onProceed }: WishingWellProps) {
             </p>
           </div>
 
-          {/* Form Input Area */}
-          <div className="flex flex-col text-left">
-            <textarea
-              value={wishText}
-              onChange={(e) => setWishText(e.target.value)}
-              placeholder="Tuliskan doa manis dan harapan terindahmu untuk Sabrina di sini... ✨"
-              className="w-full bg-zinc-950/40 border border-zinc-800/80 focus:border-[#ffb3c6] focus:ring-1 focus:ring-[#ffb3c6]/30 rounded-2xl px-5 py-4 text-[#F8F5F2] font-sans text-xs md:text-sm leading-relaxed resize-none outline-none transition-all duration-300 placeholder-zinc-600 min-h-[110px]"
-              maxLength={160}
-            />
-          </div>
-
-          <div className="flex justify-between items-center select-none">
-            <span className="text-[10px] font-mono text-zinc-500">
-              {wishText.length} / 160 karakter
-            </span>
-            
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleLaunchWish}
-              disabled={!wishText.trim()}
-              className="bg-gradient-to-r from-[#ffb3c6] to-[#8c5a6b] hover:from-[#ffe5ec] hover:to-[#ffb3c6] disabled:from-zinc-900 disabled:to-zinc-900 disabled:text-zinc-650 disabled:cursor-not-allowed border border-[#ffb3c6]/20 text-[#0a060d] font-bold py-3 px-6 rounded-full flex items-center gap-2 text-xs shadow-[0_6px_20px_rgba(255,179,198,0.25)] transition-all duration-300 uppercase tracking-wider font-mono cursor-pointer"
-            >
-              <Flame size={13} />
-              <span>Luncurkan Doa</span>
-            </motion.button>
-          </div>
+          <WishForm onLaunch={handleLaunchWish} />
         </motion.div>
 
         {/* Reveal ending credit path */}

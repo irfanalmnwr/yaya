@@ -6,6 +6,7 @@ import { Music, Volume2, VolumeX } from "lucide-react";
 export default function MusicPlayer() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -23,9 +24,16 @@ export default function MusicPlayer() {
     audio.addEventListener("play", onPlay);
     audio.addEventListener("pause", onPause);
 
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
     return () => {
       audio.removeEventListener("play", onPlay);
       audio.removeEventListener("pause", onPause);
+      window.removeEventListener("resize", checkMobile);
       audio.pause();
     };
   }, []);
@@ -58,7 +66,7 @@ export default function MusicPlayer() {
         onClick={togglePlayback}
         title={isPlaying ? "Klik untuk menjeda musik" : "Klik untuk memutar musik"}
       >
-        {isPlaying && (
+        {isPlaying && !isMobile && (
           <>
             <div className="vinyl-pulse-ring delay-0" />
             <div className="vinyl-pulse-ring delay-1000" />

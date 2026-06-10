@@ -1,9 +1,20 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Camera, Download, RotateCcw, Sparkles, AlertCircle, Heart, Smile } from "lucide-react";
-import EmojiPicker, { EmojiClickData, Theme } from "emoji-picker-react";
+import dynamic from "next/dynamic";
+import type { EmojiClickData } from "emoji-picker-react";
+
+const EmojiPicker = dynamic(() => import("emoji-picker-react"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-[380px] h-[420px] bg-zinc-900 border border-zinc-800 rounded-2xl flex items-center justify-center text-zinc-400 font-mono text-xs">
+      Memuat stiker library...
+    </div>
+  ),
+});
+
 
 interface KoreanPhotoboothProps {
   onProceed: () => void;
@@ -31,6 +42,23 @@ export default function KoreanPhotobooth({ onProceed }: KoreanPhotoboothProps) {
   const [selectedFilter, setSelectedFilter] = useState("normal");
   const [stickers, setStickers] = useState<Sticker[]>([]);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  const getAudioContext = () => {
+    if (typeof window === "undefined") return null;
+    if (!audioCtxRef.current) {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioCtx) {
+        audioCtxRef.current = new AudioCtx();
+      }
+    }
+    if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
+      audioCtxRef.current.resume();
+    }
+    return audioCtxRef.current;
+  };
 
   const getPatternStyle = (pattern: string, frameColor: string) => {
     const isDark = frameColor === "black";
@@ -71,6 +99,10 @@ export default function KoreanPhotobooth({ onProceed }: KoreanPhotoboothProps) {
         return {};
     }
   };
+
+  const patternStyle = useMemo(() => {
+    return getPatternStyle(selectedPattern, selectedFrame);
+  }, [selectedPattern, selectedFrame]);
 
   const getPatternSvgDataUrl = (pattern: string, frameColor: string) => {
     const isDark = frameColor === "black";
@@ -167,14 +199,27 @@ export default function KoreanPhotobooth({ onProceed }: KoreanPhotoboothProps) {
       if (activeStream) {
         activeStream.getTracks().forEach((track) => track.stop());
       }
+      if (audioCtxRef.current) {
+        audioCtxRef.current.close().catch(() => {});
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => {
+      window.removeEventListener("resize", checkMobile);
     };
   }, []);
 
   const playInterfaceBeep = (freq = 400) => {
     try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioCtx) return;
-      const actx = new AudioCtx();
+      const actx = getAudioContext();
+      if (!actx) return;
       const osc = actx.createOscillator();
       const gain = actx.createGain();
       osc.type = "sine";
@@ -190,9 +235,8 @@ export default function KoreanPhotobooth({ onProceed }: KoreanPhotoboothProps) {
 
   const playShutterSound = () => {
     try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioCtx) return;
-      const actx = new AudioCtx();
+      const actx = getAudioContext();
+      if (!actx) return;
       const osc = actx.createOscillator();
       const gain = actx.createGain();
       osc.type = "triangle";
@@ -395,6 +439,11 @@ export default function KoreanPhotobooth({ onProceed }: KoreanPhotoboothProps) {
     const rect = stripPreviewRef.current?.getBoundingClientRect();
     if (!rect) return;
 
+    const target = e.currentTarget as HTMLDivElement;
+    const initialSticker = stickers.find((s) => s.id === stickerId);
+    let latestX = initialSticker?.x ?? 0;
+    let latestY = initialSticker?.y ?? 0;
+
     let hasMoved = false;
     const startX = e.clientX;
     const startY = e.clientY;
@@ -409,14 +458,24 @@ export default function KoreanPhotobooth({ onProceed }: KoreanPhotoboothProps) {
       const pctX = Math.max(4, Math.min(96, (relativeX / rect.width) * 100));
       const pctY = Math.max(2, Math.min(98, (relativeY / rect.height) * 100));
 
-      setStickers((prev) =>
-        prev.map((s) => (s.id === stickerId ? { ...s, x: pctX, y: pctY } : s))
-      );
+      // Mutate styling directly for 60 FPS dragging without React rerenders
+      target.style.left = `${pctX}%`;
+      target.style.top = `${pctY}%`;
+
+      latestX = pctX;
+      latestY = pctY;
     };
 
     const handlePointerUp = () => {
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerup", handlePointerUp);
+
+      // Flush final coordinate changes to parent state ONLY ONCE
+      if (hasMoved) {
+        setStickers((prev) =>
+          prev.map((s) => (s.id === stickerId ? { ...s, x: latestX, y: latestY } : s))
+        );
+      }
     };
 
     window.addEventListener("pointermove", handlePointerMove);
@@ -680,18 +739,21 @@ export default function KoreanPhotobooth({ onProceed }: KoreanPhotoboothProps) {
             </div>
 
             {/* Camera Viewfinder Glass Container with CRT Bezel Curvature */}
-            <div className="relative w-full aspect-[4/3] bg-black rounded-2xl overflow-hidden shadow-[inset_0_0_20px_rgba(0,0,0,0.9)] border-4 border-zinc-900 mb-5 flex items-center justify-center group">
+            <div className={`relative w-full aspect-[4/3] bg-black rounded-2xl overflow-hidden border-4 border-zinc-900 mb-5 flex items-center justify-center group ${isMobile ? "" : "shadow-[inset_0_0_20px_rgba(0,0,0,0.9)]"}`}>
               
               {/* Scanline and vignette layers */}
               <div className="absolute inset-0 pointer-events-none bg-scanline opacity-15 z-20" />
-              <div className="absolute inset-0 pointer-events-none rounded-2xl z-20 shadow-[inset_0_0_40px_rgba(0,0,0,0.95)]" />
+              {!isMobile && (
+                <div className="absolute inset-0 pointer-events-none rounded-2xl z-20 shadow-[inset_0_0_40px_rgba(0,0,0,0.95)]" />
+              )}
 
               {stream ? (
                 <video 
                   ref={videoRef} 
                   autoPlay 
                   playsInline 
-                  className={`w-full h-full object-cover scale-x-[-1] filter-${selectedFilter} transition-all duration-300`} 
+                  className={`w-full h-full object-cover scale-x-[-1] ${(isMobile || selectedFilter === "normal") ? "" : `filter-${selectedFilter}`}`} 
+                  style={{ willChange: "transform" }}
                 />
               ) : isSimulationMode ? (
                 <div className="flex flex-col items-center gap-3 p-6 text-center select-none">
@@ -724,6 +786,7 @@ export default function KoreanPhotobooth({ onProceed }: KoreanPhotoboothProps) {
                     animate={{ opacity: 1, scale: 1.4, rotate: 0 }}
                     exit={{ opacity: 0, scale: 2.2, rotate: 15 }}
                     className="absolute font-serif font-black text-8xl text-[#ffb3c6] drop-shadow-[0_0_30px_rgba(255,179,198,0.9)] select-none pointer-events-none z-30"
+                    style={{ willChange: "transform, opacity" }}
                   >
                     {countdown}
                   </motion.div>
@@ -833,7 +896,7 @@ export default function KoreanPhotobooth({ onProceed }: KoreanPhotoboothProps) {
                 onClick={() => setShowEmojiPicker(false)}
               >
                 {/* Dark backdrop */}
-                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+                <div className="absolute inset-0 bg-black/75" />
                 {/* Picker card — stop propagation so clicks inside don't close */}
                 <div
                   className="relative z-10 rounded-2xl overflow-hidden shadow-2xl border border-zinc-700"
@@ -847,7 +910,7 @@ export default function KoreanPhotobooth({ onProceed }: KoreanPhotoboothProps) {
                     ✕
                   </button>
                   <EmojiPicker
-                    theme={Theme.DARK}
+                    theme={"dark" as any}
                     onEmojiClick={(emojiData: EmojiClickData) => {
                       handleSpawnSticker(emojiData.emoji);
                       setShowEmojiPicker(false);
@@ -892,11 +955,15 @@ export default function KoreanPhotobooth({ onProceed }: KoreanPhotoboothProps) {
               id="paper-strip-preview"
               className={`photo-strip-preview strip-frame-${selectedFrame} relative w-full aspect-[9/20.7] rounded-xl shadow-[0_25px_55px_rgba(0,0,0,0.7)] flex flex-col justify-between overflow-hidden border border-white/5`}
               style={{ 
-                backgroundColor: frameColorsHex[selectedFrame],
-                ...getPatternStyle(selectedPattern, selectedFrame),
-                transition: "background-color 0.4s ease"
+                backgroundColor: frameColorsHex[selectedFrame]
               }}
             >
+              {/* Pattern Overlay Layer */}
+              <div 
+                className="absolute inset-0 pointer-events-none z-0" 
+                style={patternStyle}
+              />
+
               {/* Grain Texture overlay */}
               <div className="absolute inset-0 pointer-events-none bg-noise opacity-[0.035] mix-blend-overlay z-20" />
 
@@ -960,7 +1027,7 @@ export default function KoreanPhotobooth({ onProceed }: KoreanPhotoboothProps) {
                   <div 
                     key={idx}
                     id={`preview-slot-${idx + 1}`}
-                    className="strip-item-preview relative w-full aspect-[16/8.1] bg-black rounded overflow-hidden flex items-center justify-center border border-[#ffb3c6]/30 transition-all duration-300"
+                    className="strip-item-preview relative w-full aspect-[16/8.1] bg-black rounded overflow-hidden flex items-center justify-center border border-[#ffb3c6]/30"
                     style={{
                       boxShadow: "inset 0 4px 10px rgba(0,0,0,0.4)"
                     }}
@@ -969,7 +1036,7 @@ export default function KoreanPhotobooth({ onProceed }: KoreanPhotoboothProps) {
                       <img 
                         src={capturedImages[idx]!} 
                         alt={`Bidikan ${idx + 1}`} 
-                        className={`w-full h-full object-cover scale-x-[-1] filter-${selectedFilter} transition-all duration-300`} 
+                        className={`w-full h-full object-cover scale-x-[-1] filter-${selectedFilter}`} 
                       />
                     ) : (
                       <span className="text-[10px] text-zinc-500/80 font-mono select-none tracking-widest">
@@ -986,13 +1053,13 @@ export default function KoreanPhotobooth({ onProceed }: KoreanPhotoboothProps) {
                   className="font-serif text-base italic font-bold truncate tracking-wide"
                   style={{ color: selectedFrame === "black" ? "#f8f5f2" : "#0c0914" }}
                 >
-                  Sabrina's Garden Booth
+                  Yaya Birthday Booth
                 </span>
                 <span 
                   className="font-mono text-[7px] font-bold tracking-widest mt-0.5 flex items-center justify-center gap-1"
                   style={{ color: selectedFrame === "black" ? "#a098b5" : "#6b627a" }}
                 >
-                  <span>16 JUNE 2026 • FLOWERIS BLOOMING</span>
+                  <span>16 JUNE 2026</span>
                   <Heart size={8} className="text-[#ffb3c6] fill-[#ffb3c6] animate-pulse" />
                 </span>
               </div>
@@ -1020,7 +1087,7 @@ export default function KoreanPhotobooth({ onProceed }: KoreanPhotoboothProps) {
                       setSelectedFrame(f.name);
                       playInterfaceBeep(450);
                     }}
-                    className={`text-[8px] font-mono py-2 rounded-lg border shadow-inner transition-all duration-300 flex flex-col items-center gap-1 ${
+                    className={`text-[8px] font-mono py-2 rounded-lg border shadow-inner transition-colors duration-200 flex flex-col items-center gap-1 ${
                       selectedFrame === f.name
                         ? "border-[#ffb3c6] ring-2 ring-[#ffb3c6]/30 scale-105"
                         : "border-zinc-800 text-zinc-500 hover:border-zinc-600"
@@ -1054,7 +1121,7 @@ export default function KoreanPhotobooth({ onProceed }: KoreanPhotoboothProps) {
                       setSelectedPattern(p.name);
                       playInterfaceBeep(480);
                     }}
-                    className={`text-[10px] font-sans py-2.5 px-1 rounded-xl border transition-all duration-300 flex flex-col items-center justify-center gap-1 cursor-pointer text-center ${
+                    className={`text-[10px] font-sans py-2.5 px-1 rounded-xl border transition-colors duration-200 flex flex-col items-center justify-center gap-1 cursor-pointer text-center ${
                       selectedPattern === p.name
                         ? "bg-[#ffb3c6] border-[#ffb3c6] text-[#0a060d] font-bold shadow-[0_4px_12px_rgba(255,179,198,0.35)] scale-105"
                         : "bg-pink-950/20 border-pink-900/40 text-[#ffb3c6] hover:border-[#ffb3c6]/60 hover:text-white"

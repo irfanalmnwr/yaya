@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lock, Unlock, Sparkles, Key, AlertCircle, Check, Heart } from "lucide-react";
 import confetti from "canvas-confetti";
@@ -11,7 +11,7 @@ interface LockScreenProps {
 
 // 🌸 HIGH-FIDELITY FLOWER SVG COMPONENTS 🌸
 
-function LuxuryRose({ size = 120, className = "", style = {} }: { size?: number; className?: string; style?: React.CSSProperties }) {
+const LuxuryRose = memo(function LuxuryRose({ size = 120, className = "", style = {} }: { size?: number; className?: string; style?: React.CSSProperties }) {
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" className={className} style={style}>
       <g>
@@ -29,9 +29,9 @@ function LuxuryRose({ size = 120, className = "", style = {} }: { size?: number;
       </g>
     </svg>
   );
-}
+});
 
-function LuxuryPeony({ size = 110, className = "", style = {} }: { size?: number; className?: string; style?: React.CSSProperties }) {
+const LuxuryPeony = memo(function LuxuryPeony({ size = 110, className = "", style = {} }: { size?: number; className?: string; style?: React.CSSProperties }) {
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" className={className} style={style}>
       <g>
@@ -46,9 +46,9 @@ function LuxuryPeony({ size = 110, className = "", style = {} }: { size?: number
       </g>
     </svg>
   );
-}
+});
 
-function LuxuryLily({ size = 120, className = "", style = {} }: { size?: number; className?: string; style?: React.CSSProperties }) {
+const LuxuryLily = memo(function LuxuryLily({ size = 120, className = "", style = {} }: { size?: number; className?: string; style?: React.CSSProperties }) {
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" className={className} style={style}>
       <g transform="translate(50, 50)">
@@ -74,9 +74,9 @@ function LuxuryLily({ size = 120, className = "", style = {} }: { size?: number;
       </g>
     </svg>
   );
-}
+});
 
-function BabysBreath({ size = 95, className = "", style = {} }: { size?: number; className?: string; style?: React.CSSProperties }) {
+const BabysBreath = memo(function BabysBreath({ size = 95, className = "", style = {} }: { size?: number; className?: string; style?: React.CSSProperties }) {
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" className={className} style={style}>
       <g>
@@ -97,107 +97,104 @@ function BabysBreath({ size = 95, className = "", style = {} }: { size?: number;
           <g key={i} transform={`translate(${pt.cx}, ${pt.cy})`}>
             <circle cx="0" cy="0" r="5" fill="#fefbf6" opacity="0.9" />
             <circle cx="0" cy="0" r="2.8" fill="#ffb3c6" />
-            <circle cx="-3.5" cy="-3.5" r="1.5" fill="#fefbf6" />
-            <circle cx="3.5" cy="-3.5" r="1.5" fill="#fefbf6" />
-            <circle cx="-3.5" cy="3.5" r="1.5" fill="#fefbf6" />
-            <circle cx="3.5" cy="3.5" r="1.5" fill="#fefbf6" />
           </g>
         ))}
       </g>
     </svg>
   );
-}
+});
 
 // 🌸 DENSE ORGANIC COORDINATES FOR BOTH PANEL FLOWER CURTAINS 🌸
 
 const leftCurtainFlowers = [
   // Corners
-  { type: "rose", left: "6%", top: "6%", scale: 1.3, rotate: 12 },
-  { type: "peony", left: "18%", top: "12%", scale: 1.1, rotate: -22 },
-  { type: "lily", left: "10%", top: "18%", scale: 1.05, rotate: 38 },
+  { type: "rose", left: "6%", top: "6%", scale: 1.3, rotate: 12, mobile: true },
+  { type: "peony", left: "18%", top: "12%", scale: 1.1, rotate: -22, mobile: false },
+  { type: "lily", left: "10%", top: "18%", scale: 1.05, rotate: 38, mobile: true },
   
-  { type: "rose", left: "6%", top: "94%", scale: 1.3, rotate: -15 },
-  { type: "peony", left: "18%", top: "88%", scale: 1.1, rotate: 28 },
-  { type: "lily", left: "10%", top: "82%", scale: 1.05, rotate: -10 },
+  { type: "rose", left: "6%", top: "94%", scale: 1.3, rotate: -15, mobile: true },
+  { type: "peony", left: "18%", top: "88%", scale: 1.1, rotate: 28, mobile: false },
+  { type: "lily", left: "10%", top: "82%", scale: 1.05, rotate: -10, mobile: true },
 
   // Left Border Line
-  { type: "breath", left: "8%", top: "30%", scale: 1.0, rotate: 5 },
-  { type: "rose", left: "7%", top: "42%", scale: 1.25, rotate: 45 },
-  { type: "peony", left: "9%", top: "54%", scale: 1.15, rotate: -30 },
-  { type: "lily", left: "6%", top: "68%", scale: 1.1, rotate: 15 },
+  { type: "breath", left: "8%", top: "30%", scale: 1.0, rotate: 5, mobile: false },
+  { type: "rose", left: "7%", top: "42%", scale: 1.25, rotate: 45, mobile: true },
+  { type: "peony", left: "9%", top: "54%", scale: 1.15, rotate: -30, mobile: true },
+  { type: "lily", left: "6%", top: "68%", scale: 1.1, rotate: 15, mobile: true },
 
   // Top Border Line
-  { type: "breath", left: "32%", top: "8%", scale: 0.95, rotate: 18 },
-  { type: "rose", left: "46%", top: "7%", scale: 1.2, rotate: -8 },
-  { type: "lily", left: "60%", top: "9%", scale: 1.1, rotate: 25 },
-  { type: "peony", left: "74%", top: "6%", scale: 1.15, rotate: -12 },
-  { type: "breath", left: "86%", top: "8%", scale: 0.95, rotate: 40 },
+  { type: "breath", left: "32%", top: "8%", scale: 0.95, rotate: 18, mobile: false },
+  { type: "rose", left: "46%", top: "7%", scale: 1.2, rotate: -8, mobile: true },
+  { type: "lily", left: "60%", top: "9%", scale: 1.1, rotate: 25, mobile: false },
+  { type: "peony", left: "74%", top: "6%", scale: 1.15, rotate: -12, mobile: true },
+  { type: "breath", left: "86%", top: "8%", scale: 0.95, rotate: 40, mobile: false },
 
   // Bottom Border Line
-  { type: "breath", left: "32%", top: "92%", scale: 0.95, rotate: -18 },
-  { type: "rose", left: "46%", top: "93%", scale: 1.2, rotate: 14 },
-  { type: "lily", left: "60%", top: "91%", scale: 1.1, rotate: -35 },
-  { type: "peony", left: "74%", top: "94%", scale: 1.15, rotate: 8 },
-  { type: "breath", left: "86%", top: "92%", scale: 0.95, rotate: -20 },
+  { type: "breath", left: "32%", top: "92%", scale: 0.95, rotate: -18, mobile: false },
+  { type: "rose", left: "46%", top: "93%", scale: 1.2, rotate: 14, mobile: true },
+  { type: "lily", left: "60%", top: "91%", scale: 1.1, rotate: -35, mobile: false },
+  { type: "peony", left: "74%", top: "94%", scale: 1.15, rotate: 8, mobile: true },
+  { type: "breath", left: "86%", top: "92%", scale: 0.95, rotate: -20, mobile: false },
 
   // Seam/Split Border (Right side of left curtain)
-  { type: "rose", left: "94%", top: "22%", scale: 1.2, rotate: 15 },
-  { type: "lily", left: "92%", top: "38%", scale: 1.1, rotate: -25 },
-  { type: "peony", left: "95%", top: "52%", scale: 1.15, rotate: 30 },
-  { type: "rose", left: "93%", top: "70%", scale: 1.2, rotate: -10 },
+  { type: "rose", left: "94%", top: "22%", scale: 1.2, rotate: 15, mobile: true },
+  { type: "lily", left: "92%", top: "38%", scale: 1.1, rotate: -25, mobile: true },
+  { type: "peony", left: "95%", top: "52%", scale: 1.15, rotate: 30, mobile: true },
+  { type: "rose", left: "93%", top: "70%", scale: 1.2, rotate: -10, mobile: true },
   
   // Extra dense filler duplicates for lush overlap
-  { type: "breath", left: "14%", top: "28%", scale: 0.85, rotate: 10 },
-  { type: "rose", left: "16%", top: "64%", scale: 0.95, rotate: -15 },
-  { type: "lily", left: "86%", top: "20%", scale: 0.9, rotate: 45 },
-  { type: "peony", left: "88%", top: "80%", scale: 0.95, rotate: -30 }
+  { type: "breath", left: "14%", top: "28%", scale: 0.85, rotate: 10, mobile: false },
+  { type: "rose", left: "16%", top: "64%", scale: 0.95, rotate: -15, mobile: false },
+  { type: "lily", left: "86%", top: "20%", scale: 0.9, rotate: 45, mobile: false },
+  { type: "peony", left: "88%", top: "80%", scale: 0.95, rotate: -30, mobile: false }
 ];
 
 const rightCurtainFlowers = [
   // Corners
-  { type: "rose", left: "94%", top: "6%", scale: 1.3, rotate: -12 },
-  { type: "peony", left: "82%", top: "12%", scale: 1.1, rotate: 22 },
-  { type: "lily", left: "90%", top: "18%", scale: 1.05, rotate: -38 },
+  { type: "rose", left: "94%", top: "6%", scale: 1.3, rotate: -12, mobile: true },
+  { type: "peony", left: "82%", top: "12%", scale: 1.1, rotate: 22, mobile: false },
+  { type: "lily", left: "90%", top: "18%", scale: 1.05, rotate: -38, mobile: true },
   
-  { type: "rose", left: "94%", top: "94%", scale: 1.3, rotate: 15 },
-  { type: "peony", left: "82%", top: "88%", scale: 1.1, rotate: -28 },
-  { type: "lily", left: "90%", top: "82%", scale: 1.05, rotate: 10 },
+  { type: "rose", left: "94%", top: "94%", scale: 1.3, rotate: 15, mobile: true },
+  { type: "peony", left: "82%", top: "88%", scale: 1.1, rotate: -28, mobile: false },
+  { type: "lily", left: "90%", top: "82%", scale: 1.05, rotate: 10, mobile: true },
 
   // Right Border Line
-  { type: "breath", left: "92%", top: "30%", scale: 1.0, rotate: -5 },
-  { type: "rose", left: "93%", top: "42%", scale: 1.25, rotate: -45 },
-  { type: "peony", left: "91%", top: "54%", scale: 1.15, rotate: 30 },
-  { type: "lily", left: "94%", top: "68%", scale: 1.1, rotate: -15 },
+  { type: "breath", left: "92%", top: "30%", scale: 1.0, rotate: -5, mobile: false },
+  { type: "rose", left: "93%", top: "42%", scale: 1.25, rotate: -45, mobile: true },
+  { type: "peony", left: "91%", top: "54%", scale: 1.15, rotate: 30, mobile: true },
+  { type: "lily", left: "94%", top: "68%", scale: 1.1, rotate: -15, mobile: true },
 
   // Top Border Line
-  { type: "breath", left: "68%", top: "8%", scale: 0.95, rotate: -18 },
-  { type: "rose", left: "54%", top: "7%", scale: 1.2, rotate: 8 },
-  { type: "lily", left: "40%", top: "9%", scale: 1.1, rotate: -25 },
-  { type: "peony", left: "26%", top: "6%", scale: 1.15, rotate: 12 },
-  { type: "breath", left: "14%", top: "8%", scale: 0.95, rotate: -40 },
+  { type: "breath", left: "68%", top: "8%", scale: 0.95, rotate: -18, mobile: false },
+  { type: "rose", left: "54%", top: "7%", scale: 1.2, rotate: 8, mobile: true },
+  { type: "lily", left: "40%", top: "9%", scale: 1.1, rotate: -25, mobile: false },
+  { type: "peony", left: "26%", top: "6%", scale: 1.15, rotate: 12, mobile: true },
+  { type: "breath", left: "14%", top: "8%", scale: 0.95, rotate: -40, mobile: false },
 
   // Bottom Border Line
-  { type: "breath", left: "68%", top: "92%", scale: 0.95, rotate: 18 },
-  { type: "rose", left: "54%", top: "93%", scale: 1.2, rotate: -14 },
-  { type: "lily", left: "40%", top: "91%", scale: 1.1, rotate: 35 },
-  { type: "peony", left: "26%", top: "94%", scale: 1.15, rotate: -8 },
-  { type: "breath", left: "14%", top: "92%", scale: 0.95, rotate: 20 },
+  { type: "breath", left: "68%", top: "92%", scale: 0.95, rotate: 18, mobile: false },
+  { type: "rose", left: "54%", top: "93%", scale: 1.2, rotate: -14, mobile: true },
+  { type: "lily", left: "40%", top: "91%", scale: 1.1, rotate: 35, mobile: false },
+  { type: "peony", left: "26%", top: "94%", scale: 1.15, rotate: -8, mobile: true },
+  { type: "breath", left: "14%", top: "92%", scale: 0.95, rotate: 20, mobile: false },
 
   // Seam/Split Border (Left side of right curtain)
-  { type: "rose", left: "6%", top: "22%", scale: 1.2, rotate: -15 },
-  { type: "lily", left: "8%", top: "38%", scale: 1.1, rotate: 25 },
-  { type: "peony", left: "5%", top: "52%", scale: 1.15, rotate: -30 },
-  { type: "rose", left: "7%", top: "70%", scale: 1.2, rotate: 10 },
+  { type: "rose", left: "6%", top: "22%", scale: 1.2, rotate: -15, mobile: true },
+  { type: "lily", left: "8%", top: "38%", scale: 1.1, rotate: 25, mobile: true },
+  { type: "peony", left: "5%", top: "52%", scale: 1.15, rotate: -30, mobile: true },
+  { type: "rose", left: "7%", top: "70%", scale: 1.2, rotate: 10, mobile: true },
   
   // Extra dense filler duplicates for lush overlap
-  { type: "breath", left: "86%", top: "28%", scale: 0.85, rotate: -10 },
-  { type: "rose", left: "84%", top: "64%", scale: 0.95, rotate: 15 },
-  { type: "lily", left: "14%", top: "20%", scale: 0.9, rotate: -45 },
-  { type: "peony", left: "12%", top: "80%", scale: 0.95, rotate: 30 }
+  { type: "breath", left: "86%", top: "28%", scale: 0.85, rotate: -10, mobile: false },
+  { type: "rose", left: "84%", top: "64%", scale: 0.95, rotate: 15, mobile: false },
+  { type: "lily", left: "14%", top: "20%", scale: 0.9, rotate: -45, mobile: false },
+  { type: "peony", left: "12%", top: "80%", scale: 0.95, rotate: 30, mobile: false }
 ];
 
 export default function LockScreen({ onUnlock }: LockScreenProps) {
   const [isMounted, setIsMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [petals, setPetals] = useState<any[]>([]);
   const [timeStr, setTimeStr] = useState("00:00:00");
   const [dateStr, setDateStr] = useState("Loading...");
@@ -205,11 +202,18 @@ export default function LockScreen({ onUnlock }: LockScreenProps) {
 
   useEffect(() => {
     setIsMounted(true);
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    const isMob = window.innerWidth < 768;
     setPetals(
-      Array.from({ length: 18 }).map((_, i) => ({
+      Array.from({ length: isMob ? 8 : 18 }).map((_, i) => ({
         id: i,
         left: `${5 + Math.random() * 90}%`,
-        top: `${-10 - Math.random() * 20}%`,
+        startY: -10 - Math.random() * 20,
         scale: 0.4 + Math.random() * 0.7,
         duration: 8 + Math.random() * 10,
         delay: Math.random() * -18,
@@ -217,6 +221,10 @@ export default function LockScreen({ onUnlock }: LockScreenProps) {
         rotateSpeed: 180 + Math.random() * 360
       }))
     );
+
+    return () => {
+      window.removeEventListener("resize", checkMobile);
+    };
   }, []);
   
   // Curtain opening state
@@ -410,13 +418,13 @@ export default function LockScreen({ onUnlock }: LockScreenProps) {
               key={petal.id}
               initial={{ 
                 left: petal.left, 
-                top: petal.top, 
+                y: `${petal.startY}vh`, 
                 scale: petal.scale, 
                 rotate: 0,
                 opacity: 0
               }}
               animate={{ 
-                top: "105vh",
+                y: "115vh",
                 x: [0, petal.sway, -petal.sway, 0],
                 rotate: petal.rotateSpeed,
                 opacity: [0, 0.9, 0.9, 0]
@@ -428,6 +436,10 @@ export default function LockScreen({ onUnlock }: LockScreenProps) {
                 delay: petal.delay
               }}
               className="absolute w-5 h-5 flex items-center justify-center"
+              style={{
+                top: 0,
+                willChange: "transform, opacity"
+              }}
             >
               <svg viewBox="0 0 100 100" className="w-full h-full text-[#ffc2d1]/80 fill-current">
                 {/* Organic single petal vector */}
@@ -454,31 +466,34 @@ export default function LockScreen({ onUnlock }: LockScreenProps) {
               className="w-1/2 h-full relative overflow-hidden flex justify-end"
               style={{
                 background: "linear-gradient(135deg, #1b0f1a 0%, #0a060d 100%)",
-                borderRight: "1px solid rgba(255, 179, 198, 0.15)"
+                borderRight: "1px solid rgba(255, 179, 198, 0.15)",
+                willChange: "transform"
               }}
             >
               {/* Dense Floral Wall Left */}
               <div className="absolute inset-0 w-full h-full pointer-events-none z-10 overflow-hidden opacity-90">
-                {leftCurtainFlowers.map((flower, idx) => {
-                  const size = flower.scale * 105;
-                  const Component = 
-                    flower.type === "rose" ? LuxuryRose :
-                    flower.type === "peony" ? LuxuryPeony :
-                    flower.type === "lily" ? LuxuryLily :
-                    BabysBreath;
-                  return (
-                    <Component
-                      key={idx}
-                      size={size}
-                      className="absolute"
-                      style={{
-                        left: flower.left,
-                        top: flower.top,
-                        transform: `translate(-50%, -50%) rotate(${flower.rotate}deg)`,
-                      }}
-                    />
-                  );
-                })}
+                {leftCurtainFlowers
+                  .filter((flower) => !isMobile || flower.mobile)
+                  .map((flower, idx) => {
+                    const size = flower.scale * 105;
+                    const Component = 
+                      flower.type === "rose" ? LuxuryRose :
+                      flower.type === "peony" ? LuxuryPeony :
+                      flower.type === "lily" ? LuxuryLily :
+                      BabysBreath;
+                    return (
+                      <Component
+                        key={idx}
+                        size={size}
+                        className="absolute"
+                        style={{
+                          left: flower.left,
+                          top: flower.top,
+                          transform: `translate(-50%, -50%) rotate(${flower.rotate}deg)`,
+                        }}
+                      />
+                    );
+                  })}
               </div>
             </motion.div>
 
@@ -490,31 +505,34 @@ export default function LockScreen({ onUnlock }: LockScreenProps) {
               className="w-1/2 h-full relative overflow-hidden flex justify-start"
               style={{
                 background: "linear-gradient(225deg, #181121 0%, #0a060d 100%)",
-                borderLeft: "1px solid rgba(255, 179, 198, 0.15)"
+                borderLeft: "1px solid rgba(255, 179, 198, 0.15)",
+                willChange: "transform"
               }}
             >
               {/* Dense Floral Wall Right */}
               <div className="absolute inset-0 w-full h-full pointer-events-none z-10 overflow-hidden opacity-90">
-                {rightCurtainFlowers.map((flower, idx) => {
-                  const size = flower.scale * 105;
-                  const Component = 
-                    flower.type === "rose" ? LuxuryRose :
-                    flower.type === "peony" ? LuxuryPeony :
-                    flower.type === "lily" ? LuxuryLily :
-                    BabysBreath;
-                  return (
-                    <Component
-                      key={idx}
-                      size={size}
-                      className="absolute"
-                      style={{
-                        left: flower.left,
-                        top: flower.top,
-                        transform: `translate(-50%, -50%) rotate(${flower.rotate}deg)`,
-                      }}
-                    />
-                  );
-                })}
+                {rightCurtainFlowers
+                  .filter((flower) => !isMobile || flower.mobile)
+                  .map((flower, idx) => {
+                    const size = flower.scale * 105;
+                    const Component = 
+                      flower.type === "rose" ? LuxuryRose :
+                      flower.type === "peony" ? LuxuryPeony :
+                      flower.type === "lily" ? LuxuryLily :
+                      BabysBreath;
+                    return (
+                      <Component
+                        key={idx}
+                        size={size}
+                        className="absolute"
+                        style={{
+                          left: flower.left,
+                          top: flower.top,
+                          transform: `translate(-50%, -50%) rotate(${flower.rotate}deg)`,
+                        }}
+                      />
+                    );
+                  })}
               </div>
             </motion.div>
 

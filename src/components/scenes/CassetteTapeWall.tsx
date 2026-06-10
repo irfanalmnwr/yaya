@@ -18,14 +18,48 @@ interface CassetteTapeWallProps {
   onProceed: () => void;
 }
 
+interface EqualizerProps {
+  isPlaying: boolean;
+}
+
+const Equalizer = ({ isPlaying }: EqualizerProps) => {
+  const [heights, setHeights] = useState<number[]>(new Array(18).fill(8));
+
+  useEffect(() => {
+    if (!isPlaying) {
+      setHeights(new Array(18).fill(8));
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setHeights(
+        new Array(18).fill(0).map(() => Math.floor(Math.random() * 70) + 15)
+      );
+    }, 110);
+
+    return () => clearInterval(interval);
+  }, [isPlaying]);
+
+  return (
+    <div className="h-9 w-full flex items-end justify-between px-1 select-none pointer-events-none">
+      {heights.map((h, i) => (
+        <motion.div
+          key={i}
+          animate={{ height: `${h}%` }}
+          transition={{ type: "spring", stiffness: 160, damping: 14 }}
+          className="w-1.5 rounded-t bg-gradient-to-t from-[#8c5a6b] via-[#ffb3c6] to-white shadow-[0_0_8px_rgba(255,179,198,0.35)]"
+        />
+      ))}
+    </div>
+  );
+};
+
 export default function CassetteTapeWall({ onProceed }: CassetteTapeWallProps) {
   const [activeTapeId, setActiveTapeId] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [visualizerHeights, setVisualizerHeights] = useState<number[]>(new Array(18).fill(8));
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const activeNodesRef = useRef<Array<{ osc: OscillatorNode; gain: GainNode }>>([]);
-  const animIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const soundIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const cassettesList: Cassette[] = [
@@ -109,33 +143,14 @@ export default function CassetteTapeWall({ onProceed }: CassetteTapeWallProps) {
     });
   };
 
-  const startVisualizerAnimation = () => {
-    if (animIntervalRef.current) clearInterval(animIntervalRef.current);
-    animIntervalRef.current = setInterval(() => {
-      setVisualizerHeights(
-        new Array(18).fill(0).map(() => Math.floor(Math.random() * 70) + 15)
-      );
-    }, 110);
-  };
-
-  const stopVisualizerAnimation = () => {
-    if (animIntervalRef.current) {
-      clearInterval(animIntervalRef.current);
-      animIntervalRef.current = null;
-    }
-    setVisualizerHeights(new Array(18).fill(8));
-  };
-
   const handleCassetteClick = (tape: Cassette) => {
     if (activeTapeId === tape.id) {
       if (isPlaying) {
         setIsPlaying(false);
         stopActiveSynth();
-        stopVisualizerAnimation();
         if (soundIntervalRef.current) clearInterval(soundIntervalRef.current);
       } else {
         setIsPlaying(true);
-        startVisualizerAnimation();
         playSynthesizedMelody(tape.chords);
         
         if (soundIntervalRef.current) clearInterval(soundIntervalRef.current);
@@ -146,7 +161,6 @@ export default function CassetteTapeWall({ onProceed }: CassetteTapeWallProps) {
     } else {
       setActiveTapeId(tape.id);
       setIsPlaying(true);
-      startVisualizerAnimation();
       playSynthesizedMelody(tape.chords);
 
       if (soundIntervalRef.current) clearInterval(soundIntervalRef.current);
@@ -159,8 +173,11 @@ export default function CassetteTapeWall({ onProceed }: CassetteTapeWallProps) {
   useEffect(() => {
     return () => {
       stopActiveSynth();
-      stopVisualizerAnimation();
       if (soundIntervalRef.current) clearInterval(soundIntervalRef.current);
+      if (audioCtxRef.current) {
+        audioCtxRef.current.close().catch(() => {});
+        audioCtxRef.current = null;
+      }
     };
   }, []);
 
@@ -293,16 +310,7 @@ export default function CassetteTapeWall({ onProceed }: CassetteTapeWallProps) {
             </div>
 
             {/* Glowing Equalizer Waveform bars */}
-            <div className="h-9 w-full flex items-end justify-between px-1 select-none pointer-events-none">
-              {visualizerHeights.map((h, i) => (
-                <motion.div
-                  key={i}
-                  animate={{ height: `${h}%` }}
-                  transition={{ type: "spring", stiffness: 160, damping: 14 }}
-                  className="w-1.5 rounded-t bg-gradient-to-t from-[#8c5a6b] via-[#ffb3c6] to-white shadow-[0_0_8px_rgba(255,179,198,0.35)]"
-                />
-              ))}
-            </div>
+            <Equalizer isPlaying={isPlaying} />
           </div>
 
           {/* Cassette Selector Columns */}

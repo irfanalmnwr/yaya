@@ -9,11 +9,15 @@ export default function EndingCredits() {
   const [wipeStage, setWipeStage] = useState<"wipe-in" | "opaque" | "credits">("wipe-in");
   const [isMounted, setIsMounted] = useState(false);
   const [petalsList, setPetalsList] = useState<any[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
+    const isMob = typeof window !== "undefined" && window.innerWidth < 768;
+    setIsMobile(isMob);
+    
     setPetalsList(
-      Array.from({ length: 45 }).map((_, i) => ({
+      Array.from({ length: isMob ? 15 : 45 }).map((_, i) => ({
         id: i,
         delay: Math.random() * 1.5,
         duration: 1.2 + Math.random() * 1.5,
@@ -21,6 +25,11 @@ export default function EndingCredits() {
         scale: 0.5 + Math.random() * 1,
       }))
     );
+
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener("resize", checkMobile);
 
     // Stage 1: Petals falling to cover screen for 0.8s
     const t1 = setTimeout(() => {
@@ -33,6 +42,7 @@ export default function EndingCredits() {
     }, 1500);
 
     return () => {
+      window.removeEventListener("resize", checkMobile);
       clearTimeout(t1);
       clearTimeout(t2);
     };
@@ -42,7 +52,7 @@ export default function EndingCredits() {
     <section id="ending-credits" className="relative flex flex-col justify-center items-center min-h-screen overflow-hidden bg-[#0f0b15] select-none w-full">
       
       {/* Shuffled projector film grain overlay */}
-      <div className="film-grain" />
+      <div className={`film-grain ${isMobile ? "hidden" : ""}`} />
 
       {/* Cinematic vignette edges */}
       <div className="absolute inset-0 pointer-events-none z-20" style={{
@@ -82,7 +92,7 @@ export default function EndingCredits() {
                     ease: "linear"
                   }}
                   className="absolute"
-                  style={{ scale: petal.scale }}
+                  style={{ scale: petal.scale, willChange: "transform, opacity" }}
                 >
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="#ffb3c6">
                     <path d="M12,2 C10,5 6,7 6,12 C6,16 9,19 12,22 C15,19 18,16 18,12 C18,7 13,5 12,2 Z" />
@@ -121,6 +131,7 @@ export default function EndingCredits() {
               delay: 0.3
             }}
             className="w-full flex flex-col items-center gap-16 pb-36 px-12"
+            style={{ willChange: "transform" }}
           >
             {/* Studio Intro Logo */}
             <div className="mt-[100vh] mb-20 flex flex-col items-center gap-4">
@@ -136,7 +147,10 @@ export default function EndingCredits() {
 
             {/* Film Title Card */}
             <div className="flex flex-col items-center gap-3 mb-14">
-              <h1 className="text-5xl md:text-6xl font-serif text-[#fefbf6] font-bold tracking-wide leading-none drop-shadow-[0_0_20px_rgba(255,179,198,0.25)] text-center">
+              <h1 
+                className="text-5xl md:text-6xl font-serif text-[#fefbf6] font-bold tracking-wide leading-none text-center"
+                style={{ textShadow: "0 0 15px rgba(255, 179, 198, 0.25)" }}
+              >
                 Blooming Memories
               </h1>
               <p className="font-mono text-[#ffb3c6]/80 text-[10px] uppercase tracking-[0.35em] mt-2 text-center">
@@ -154,7 +168,10 @@ export default function EndingCredits() {
               <span className="text-[10px] uppercase font-mono tracking-[0.4em] text-zinc-500 font-bold">
                 Tokoh Utama dalam Ceritaku
               </span>
-              <span className="text-3xl md:text-4xl font-serif text-[#fefbf6] font-semibold tracking-wide drop-shadow-[0_0_15px_rgba(255,255,255,0.08)]">
+              <span 
+                className="text-3xl md:text-4xl font-serif text-[#fefbf6] font-semibold tracking-wide"
+                style={{ textShadow: "0 0 10px rgba(255, 255, 255, 0.08)" }}
+              >
                 Sabrina Zahra Tudinia
               </span>
             </div>
@@ -200,7 +217,10 @@ export default function EndingCredits() {
 
             {/* Romantic Final Title Message */}
             <div className="flex flex-col gap-8 items-center">
-              <p className="font-serif text-[#fefbf6] text-2xl md:text-3xl leading-relaxed max-w-sm font-semibold italic drop-shadow-[0_0_15px_rgba(255,255,255,0.06)] text-center">
+              <p 
+                className="font-serif text-[#fefbf6] text-2xl md:text-3xl leading-relaxed max-w-sm font-semibold italic text-center"
+                style={{ textShadow: "0 0 8px rgba(255, 255, 255, 0.06)" }}
+              >
                 &ldquo;Selamat Ulang Tahun yang ke-23, Sayang.&rdquo;
               </p>
               <p className="font-serif italic text-[#ffb3c6] text-sm md:text-base leading-relaxed max-w-xs text-center">
@@ -233,7 +253,7 @@ export default function EndingCredits() {
                   &ldquo;Saat kelopak mawar terakhir jatuh malam ini, satu doaku tetap sama: semoga tahun-tahun berikutnya masih bisa aku rayakan bersamamu.&rdquo; 🌹✨
                 </span>
               </div>
-              <Heart size={22} className="text-[#ffb3c6] fill-[#ffb3c6] animate-pulse mt-6 shadow-[0_0_15px_rgba(255,179,198,0.5)]" />
+              <Heart size={22} className="text-[#ffb3c6] fill-[#ffb3c6] animate-pulse mt-6" />
             </div>
 
           </motion.div>

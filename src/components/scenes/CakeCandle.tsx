@@ -21,11 +21,31 @@ export default function CakeCandle({ onProceed }: CakeCandleProps) {
 
   const containerRef = useRef<HTMLDivElement>(null);
   const smokeCanvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRectRef = useRef<DOMRect | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const cardRectRef = useRef<DOMRect | null>(null);
+
+  const getAudioContext = () => {
+    if (typeof window === "undefined") return null;
+    if (!audioCtxRef.current) {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioCtx) {
+        audioCtxRef.current = new AudioCtx();
+      }
+    }
+    if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
+      audioCtxRef.current.resume();
+    }
+    return audioCtxRef.current;
+  };
 
   // Mouse move detection near the candle to tilt flame
   const handleMouseMove = (e: React.MouseEvent) => {
     if (isBlown || !containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
+    if (!containerRectRef.current) {
+      containerRectRef.current = containerRef.current.getBoundingClientRect();
+    }
+    const rect = containerRectRef.current;
     const cX = rect.left + rect.width / 2;
     const cY = rect.top + 70; // approximate flame position
 
@@ -51,13 +71,17 @@ export default function CakeCandle({ onProceed }: CakeCandleProps) {
   };
 
   const handleMouseLeave = () => {
+    containerRectRef.current = null;
     setFlameTilt(0);
     setFlameScale(1);
   };
 
   // 3D Tilt for the Luxury Ticket Card
   const handleCardMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const card = e.currentTarget.getBoundingClientRect();
+    if (!cardRectRef.current) {
+      cardRectRef.current = e.currentTarget.getBoundingClientRect();
+    }
+    const card = cardRectRef.current;
     const x = e.clientX - card.left - card.width / 2;
     const y = e.clientY - card.top - card.height / 2;
     setRotateX(-y / 14); // Tilting factor
@@ -65,35 +89,40 @@ export default function CakeCandle({ onProceed }: CakeCandleProps) {
   };
 
   const handleCardMouseLeave = () => {
+    cardRectRef.current = null;
     setRotateX(0);
     setRotateY(0);
   };
 
   const triggerConfettiBlast = () => {
-    const end = Date.now() + 1500;
     const colors = ["#ffb3c6", "#ffe5ec", "#b88d9f", "#ffffff", "#8c5a6b"];
-
-    const frame = () => {
+    // Blast left side
+    confetti({
+      particleCount: 50,
+      angle: 60,
+      spread: 65,
+      origin: { x: 0, y: 0.7 },
+      colors: colors
+    });
+    // Blast right side
+    confetti({
+      particleCount: 50,
+      angle: 120,
+      spread: 65,
+      origin: { x: 1, y: 0.7 },
+      colors: colors
+    });
+    
+    // Second wave after 250ms
+    setTimeout(() => {
       confetti({
-        particleCount: 6,
-        angle: 60,
-        spread: 65,
-        origin: { x: 0 },
+        particleCount: 30,
+        angle: 90,
+        spread: 80,
+        origin: { x: 0.5, y: 0.6 },
         colors: colors
       });
-      confetti({
-        particleCount: 6,
-        angle: 120,
-        spread: 65,
-        origin: { x: 1 },
-        colors: colors
-      });
-
-      if (Date.now() < end) {
-        requestAnimationFrame(frame);
-      }
-    };
-    frame();
+    }, 250);
   };
 
   const handleBlowOut = () => {
@@ -114,9 +143,8 @@ export default function CakeCandle({ onProceed }: CakeCandleProps) {
 
   const playChime = () => {
     try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioCtx) return;
-      const actx = new AudioCtx();
+      const actx = getAudioContext();
+      if (!actx) return;
       const now = actx.currentTime;
       
       const freqs = [523.25, 659.25, 783.99, 1046.50, 1318.51]; // Beautiful major chord
@@ -183,7 +211,9 @@ export default function CakeCandle({ onProceed }: CakeCandleProps) {
         });
       }
 
-      particles.forEach((p, idx) => {
+      const activeParticles = [];
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
         p.x += p.vx;
         p.y += p.vy;
         p.vy *= 0.97; // air resistance slowing rising smoke
@@ -191,20 +221,19 @@ export default function CakeCandle({ onProceed }: CakeCandleProps) {
         p.size += p.growth;
         p.alpha -= 0.011; // gradual fade
 
-        if (p.alpha <= 0) {
-          particles.splice(idx, 1);
-          return;
+        if (p.alpha > 0) {
+          ctx.beginPath();
+          const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+          grad.addColorStop(0, `rgba(255, 179, 198, ${p.alpha * 0.25})`);
+          grad.addColorStop(0.4, `rgba(254, 251, 246, ${p.alpha * 0.12})`);
+          grad.addColorStop(1, "rgba(255, 255, 255, 0)");
+          ctx.fillStyle = grad;
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+          activeParticles.push(p);
         }
-
-        ctx.beginPath();
-        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
-        grad.addColorStop(0, `rgba(255, 179, 198, ${p.alpha * 0.25})`);
-        grad.addColorStop(0.4, `rgba(254, 251, 246, ${p.alpha * 0.12})`);
-        grad.addColorStop(1, "rgba(255, 255, 255, 0)");
-        ctx.fillStyle = grad;
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
-      });
+      }
+      particles = activeParticles;
 
       ticks++;
       if (particles.length > 0) {
