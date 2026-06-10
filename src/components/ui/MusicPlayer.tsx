@@ -9,31 +9,10 @@ export default function MusicPlayer() {
   const [isMobile, setIsMobile] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const hasClickedPlayRef = useRef(false);
+  const playListenerRef = useRef<(() => void) | null>(null);
+  const pauseListenerRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
-    // Initialize native Audio object with hbd.mp3 served from public folder
-    const audio = new Audio("/assets/music/hbd.mp3");
-    audio.autoplay = false;
-    audio.loop = true;
-    audio.volume = 0.55; // Set cozy ambient volume
-    audio.pause(); // Force pause to prevent browser auto-resume on load
-    audioRef.current = audio;
-
-    // Synchronize play state and intercept autoplay
-    const onPlay = () => {
-      if (!hasClickedPlayRef.current) {
-        audio.pause();
-        setIsPlaying(false);
-      } else {
-        setIsPlaying(true);
-      }
-    };
-    const onPause = () => setIsPlaying(false);
-
-    audio.addEventListener("play", onPlay);
-    audio.addEventListener("pause", onPause);
-
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -41,35 +20,61 @@ export default function MusicPlayer() {
     window.addEventListener("resize", checkMobile);
 
     return () => {
-      audio.removeEventListener("play", onPlay);
-      audio.removeEventListener("pause", onPause);
       window.removeEventListener("resize", checkMobile);
-      audio.pause();
+      if (audioRef.current) {
+        const audio = audioRef.current;
+        audio.pause();
+        if (playListenerRef.current) {
+          audio.removeEventListener("play", playListenerRef.current);
+        }
+        if (pauseListenerRef.current) {
+          audio.removeEventListener("pause", pauseListenerRef.current);
+        }
+      }
     };
   }, []);
 
-  const togglePlayback = () => {
-    if (!audioRef.current) return;
+  const initAudio = () => {
+    if (audioRef.current) return audioRef.current;
 
-    if (!audioRef.current.paused) {
-      hasClickedPlayRef.current = false;
-      audioRef.current.pause();
+    const audio = new Audio("/assets/music/hbd.mp3");
+    audio.autoplay = false;
+    audio.loop = true;
+    audio.volume = 0.55; // Set cozy ambient volume
+    audio.muted = isMuted;
+
+    const onPlay = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
+
+    audio.addEventListener("play", onPlay);
+    audio.addEventListener("pause", onPause);
+
+    playListenerRef.current = onPlay;
+    pauseListenerRef.current = onPause;
+
+    audioRef.current = audio;
+    return audio;
+  };
+
+  const togglePlayback = () => {
+    const audio = initAudio();
+
+    if (!audio.paused) {
+      audio.pause();
     } else {
-      hasClickedPlayRef.current = true;
-      audioRef.current.play().catch((err) => {
+      audio.play().catch((err) => {
         console.error("Failed to play audio:", err);
-        hasClickedPlayRef.current = false;
       });
     }
   };
 
   const toggleMute = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!audioRef.current) return;
-
     const nextMuted = !isMuted;
-    audioRef.current.muted = nextMuted;
     setIsMuted(nextMuted);
+    if (audioRef.current) {
+      audioRef.current.muted = nextMuted;
+    }
   };
 
   return (
