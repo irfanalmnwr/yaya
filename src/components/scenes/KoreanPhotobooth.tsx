@@ -205,6 +205,13 @@ export default function KoreanPhotobooth({ onProceed }: KoreanPhotoboothProps) {
     };
   }, []);
 
+  // Bind stream to video element once the element mounts in the DOM
+  useEffect(() => {
+    if (videoRef.current && stream) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [stream]);
+
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
