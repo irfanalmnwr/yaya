@@ -9,6 +9,7 @@ export default function MusicPlayer() {
   const [isMobile, setIsMobile] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const hasClickedPlayRef = useRef(false);
 
   useEffect(() => {
     // Initialize native Audio object with hbd.mp3 served from public folder
@@ -19,8 +20,15 @@ export default function MusicPlayer() {
     audio.pause(); // Force pause to prevent browser auto-resume on load
     audioRef.current = audio;
 
-    // Synchronize play state if audio plays/pauses from outside or device interruptions
-    const onPlay = () => setIsPlaying(true);
+    // Synchronize play state and intercept autoplay
+    const onPlay = () => {
+      if (!hasClickedPlayRef.current) {
+        audio.pause();
+        setIsPlaying(false);
+      } else {
+        setIsPlaying(true);
+      }
+    };
     const onPause = () => setIsPlaying(false);
 
     audio.addEventListener("play", onPlay);
@@ -44,10 +52,13 @@ export default function MusicPlayer() {
     if (!audioRef.current) return;
 
     if (!audioRef.current.paused) {
+      hasClickedPlayRef.current = false;
       audioRef.current.pause();
     } else {
+      hasClickedPlayRef.current = true;
       audioRef.current.play().catch((err) => {
         console.error("Failed to play audio:", err);
+        hasClickedPlayRef.current = false;
       });
     }
   };
