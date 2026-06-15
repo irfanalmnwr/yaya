@@ -12,6 +12,7 @@ interface Cassette {
   labelHex: string;
   chords: number[];
   voiceNote: string;
+  audioUrl?: string;
 }
 
 interface CassetteTapeWallProps {
@@ -61,6 +62,7 @@ export default function CassetteTapeWall({ onProceed }: CassetteTapeWallProps) {
   const audioCtxRef = useRef<AudioContext | null>(null);
   const activeNodesRef = useRef<Array<{ osc: OscillatorNode; gain: GainNode }>>([]);
   const soundIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const cassettesList: Cassette[] = [
     {
@@ -69,8 +71,9 @@ export default function CassetteTapeWall({ onProceed }: CassetteTapeWallProps) {
       sub: "Voice No. 1 • Mawar Merah Muda",
       bgHex: "linear-gradient(135deg, #8c5a6b 0%, #181121 100%)",
       labelHex: "#ffb3c6",
-      chords: [261.63, 329.63, 392.00, 523.25], // C Major Sweet Harmony
-      voiceNote: "Setiap kelopak mawar merah muda ini membisikkan janji kesetiaan. Di taman hatiku, namamu terukir indah sebagai cinta sejati yang mekar abadi..."
+      chords: [261.63, 329.63, 392.00, 523.25],
+      voiceNote: "Barakallah Fii Umrik Kaka",
+      audioUrl: "/assets/music/mama.mp3"
     },
     {
       id: "soft-peony",
@@ -79,17 +82,9 @@ export default function CassetteTapeWall({ onProceed }: CassetteTapeWallProps) {
       bgHex: "linear-gradient(135deg, #422030 0%, #0a060d 100%)",
       labelHex: "#ffe5ec",
       chords: [349.23, 440.00, 523.25, 698.46], // F Major Warmth
-      voiceNote: "Rasa syukurku tak terbatas karena memilikimu di sisiku. Bagaikan peony yang mengembang anggun, kehadiranmu melengkapi keindahan hidupku..."
+      voiceNote: "Selamat Ulang Tahun Kaka Yaya Cantik",
+       audioUrl: "/assets/music/anida.mp3"
     },
-    {
-      id: "sweet-lily",
-      title: "Ucapan - Najwa",
-      sub: "Voice No. 3 • Bunga Lili Manis",
-      bgHex: "linear-gradient(135deg, #b88d9f 0%, #181121 100%)",
-      labelHex: "#fefbf6",
-      chords: [293.66, 349.23, 440.00, 587.33], // G Major Bliss
-      voiceNote: "Di setiap embusan nafas, detak jantungku menyanyikan namamu. Cinta kita semurni lili putih, membawa kedamaian dan kebahagiaan abadi..."
-    }
   ];
 
   const getAudioContext = () => {
@@ -143,37 +138,74 @@ export default function CassetteTapeWall({ onProceed }: CassetteTapeWallProps) {
     });
   };
 
+  const stopTapeSound = (pauseOnly = false) => {
+    stopActiveSynth();
+    if (soundIntervalRef.current) {
+      clearInterval(soundIntervalRef.current);
+      soundIntervalRef.current = null;
+    }
+    if (pauseOnly) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+    } else {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    }
+  };
+
+  const playTapeSound = (tape: Cassette) => {
+    if (tape.audioUrl) {
+      if (audioRef.current && audioRef.current.src.includes(tape.audioUrl)) {
+        audioRef.current.play().catch((err) => {
+          console.error("Failed to play cassette audio:", err);
+        });
+      } else {
+        stopTapeSound();
+        const audio = new Audio(tape.audioUrl);
+        audio.loop = false;
+        audio.onended = () => {
+          setIsPlaying(false);
+          stopTapeSound();
+        };
+        audioRef.current = audio;
+        audio.play().catch((err) => {
+          console.error("Failed to play cassette audio:", err);
+        });
+      }
+    } else {
+      stopTapeSound();
+    }
+
+    // Always play the chords in tandem with the tape playback (both audio file & synth modes)
+    playSynthesizedMelody(tape.chords);
+    if (soundIntervalRef.current) clearInterval(soundIntervalRef.current);
+    soundIntervalRef.current = setInterval(() => {
+      playSynthesizedMelody(tape.chords);
+    }, 2500);
+  };
+
   const handleCassetteClick = (tape: Cassette) => {
     if (activeTapeId === tape.id) {
       if (isPlaying) {
         setIsPlaying(false);
-        stopActiveSynth();
-        if (soundIntervalRef.current) clearInterval(soundIntervalRef.current);
+        stopTapeSound(true);
       } else {
         setIsPlaying(true);
-        playSynthesizedMelody(tape.chords);
-        
-        if (soundIntervalRef.current) clearInterval(soundIntervalRef.current);
-        soundIntervalRef.current = setInterval(() => {
-          playSynthesizedMelody(tape.chords);
-        }, 2500);
+        playTapeSound(tape);
       }
     } else {
       setActiveTapeId(tape.id);
       setIsPlaying(true);
-      playSynthesizedMelody(tape.chords);
-
-      if (soundIntervalRef.current) clearInterval(soundIntervalRef.current);
-      soundIntervalRef.current = setInterval(() => {
-        playSynthesizedMelody(tape.chords);
-      }, 2500);
+      playTapeSound(tape);
     }
   };
 
   useEffect(() => {
     return () => {
-      stopActiveSynth();
-      if (soundIntervalRef.current) clearInterval(soundIntervalRef.current);
+      stopTapeSound();
       if (audioCtxRef.current) {
         audioCtxRef.current.close().catch(() => {});
         audioCtxRef.current = null;
