@@ -28,6 +28,181 @@ interface Sticker {
   size: number; // em scale, e.g. 1.5 = 1.5em
 }
 
+// --- Native Canvas Pattern Drawing Helpers to prevent Safari SVG Taint (SecurityError) ---
+const drawHeartsPattern = (ctx: CanvasRenderingContext2D, width: number, height: number, isDark: boolean) => {
+  const opacity = isDark ? 0.15 : 0.38;
+  const primaryColor = isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(255, 179, 198, ${opacity})`;
+  ctx.fillStyle = primaryColor;
+
+  const path = new Path2D("M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z");
+  
+  const spacingX = 93;
+  const spacingY = 93;
+  const scale = 2.58;
+
+  for (let x = -24; x < width + spacingX; x += spacingX) {
+    for (let y = -24; y < height + spacingY; y += spacingY) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(scale, scale);
+      ctx.fill(path);
+      ctx.restore();
+
+      ctx.save();
+      ctx.translate(x + spacingX / 2, y + spacingY / 2);
+      ctx.scale(scale, scale);
+      ctx.fill(path);
+      ctx.restore();
+    }
+  }
+};
+
+const drawStarsPattern = (ctx: CanvasRenderingContext2D, width: number, height: number, isDark: boolean) => {
+  const opacity = isDark ? 0.15 : 0.38;
+  const accentColor = isDark ? `rgba(255, 215, 0, ${opacity})` : `rgba(255, 179, 198, ${opacity})`;
+  ctx.fillStyle = accentColor;
+
+  const path = new Path2D("M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z");
+  
+  const spacingX = 72;
+  const spacingY = 72;
+  const scale = 2.58;
+
+  for (let x = -24; x < width + spacingX; x += spacingX) {
+    for (let y = -24; y < height + spacingY; y += spacingY) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(scale, scale);
+      ctx.fill(path);
+      ctx.restore();
+
+      ctx.save();
+      ctx.translate(x + spacingX / 2, y + spacingY / 2);
+      ctx.scale(scale, scale);
+      ctx.fill(path);
+      ctx.restore();
+    }
+  }
+};
+
+const drawPolkaPattern = (ctx: CanvasRenderingContext2D, width: number, height: number, isDark: boolean) => {
+  const fillDot = isDark ? "#ffffff" : "#ffb3c6";
+  const opacity = isDark ? 0.15 : 0.4;
+  ctx.fillStyle = fillDot;
+  
+  const spacing = 41.3;
+  const radius = 5.2;
+
+  ctx.save();
+  ctx.globalAlpha = opacity;
+  for (let x = 0; x < width + spacing; x += spacing) {
+    for (let y = 0; y < height + spacing; y += spacing) {
+      ctx.beginPath();
+      ctx.arc(x + spacing * 0.25, y + spacing * 0.25, radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(x + spacing * 0.75, y + spacing * 0.75, radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+};
+
+const drawConfettiPattern = (ctx: CanvasRenderingContext2D, width: number, height: number, isDark: boolean) => {
+  const opacity = isDark ? 0.15 : 0.38;
+  const primaryColor = isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(255, 179, 198, ${opacity})`;
+  const accentColor = isDark ? `rgba(255, 215, 0, ${opacity})` : `rgba(255, 179, 198, ${opacity})`;
+  const blueColor = `rgba(136, 192, 208, ${opacity})`;
+  const purpleColor = `rgba(180, 142, 173, ${opacity})`;
+
+  const spacing = 114;
+  const scale = 2.58;
+
+  for (let x = 0; x < width + spacing; x += spacing) {
+    for (let y = 0; y < height + spacing; y += spacing) {
+      ctx.fillStyle = primaryColor;
+      ctx.beginPath();
+      ctx.arc(x + 5 * scale, y + 10 * scale, 2 * scale, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = accentColor;
+      ctx.save();
+      ctx.translate(x + 26.5 * scale, y + 6.5 * scale);
+      ctx.rotate(Math.PI / 4);
+      ctx.fillRect(-1.5 * scale, -1.5 * scale, 3 * scale, 3 * scale);
+      ctx.restore();
+
+      ctx.fillStyle = blueColor;
+      ctx.beginPath();
+      ctx.arc(x + 15 * scale, y + 30 * scale, 1.5 * scale, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = purpleColor;
+      ctx.save();
+      ctx.translate(x + 33 * scale, y + 27 * scale);
+      ctx.rotate(Math.PI / 12);
+      ctx.fillRect(-1 * scale, -2 * scale, 2 * scale, 4 * scale);
+      ctx.restore();
+
+      ctx.strokeStyle = primaryColor;
+      ctx.lineWidth = 1 * scale;
+      ctx.beginPath();
+      ctx.moveTo(x + 8 * scale, y + 25 * scale);
+      ctx.quadraticCurveTo(x + 10 * scale, y + 23 * scale, x + 12 * scale, y + 25 * scale);
+      ctx.quadraticCurveTo(x + 14 * scale, y + 27 * scale, x + 16 * scale, y + 25 * scale);
+      ctx.stroke();
+    }
+  }
+};
+
+const drawRosesPattern = (ctx: CanvasRenderingContext2D, width: number, height: number, isDark: boolean) => {
+  const opacity = isDark ? 0.15 : 0.38;
+  const flowerColor = isDark ? `rgba(255, 204, 213, ${opacity})` : `rgba(255, 133, 161, ${opacity})`;
+
+  const path = new Path2D("M12 2a4 4 0 0 0-4 4c0 4 4 8 4 8s4-4 4-8a4 4 0 0 0-4-4zm0 10a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z");
+  
+  const spacingX = 93;
+  const spacingY = 93;
+  const scale = 2.58;
+
+  for (let x = -24; x < width + spacingX; x += spacingX) {
+    for (let y = -24; y < height + spacingY; y += spacingY) {
+      ctx.fillStyle = flowerColor;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(scale, scale);
+      ctx.fill(path);
+      ctx.restore();
+
+      ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(scale, scale);
+      ctx.beginPath();
+      ctx.arc(12, 10.5, 1.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      ctx.fillStyle = flowerColor;
+      ctx.save();
+      ctx.translate(x + spacingX / 2, y + spacingY / 2);
+      ctx.scale(scale, scale);
+      ctx.fill(path);
+      ctx.restore();
+
+      ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+      ctx.save();
+      ctx.translate(x + spacingX / 2, y + spacingY / 2);
+      ctx.scale(scale, scale);
+      ctx.beginPath();
+      ctx.arc(12, 10.5, 1.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+};
+
 export default function KoreanPhotobooth({ onProceed }: KoreanPhotoboothProps) {
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [capturedImages, setCapturedImages] = useState<Array<string | null>>([null, null, null, null]);
@@ -43,6 +218,7 @@ export default function KoreanPhotobooth({ onProceed }: KoreanPhotoboothProps) {
   const [stickers, setStickers] = useState<Sticker[]>([]);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [downloadedImageUrl, setDownloadedImageUrl] = useState<string | null>(null);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
 
@@ -524,11 +700,9 @@ export default function KoreanPhotobooth({ onProceed }: KoreanPhotoboothProps) {
 
     let loadedCount = 0;
     const imagesToDraw: HTMLImageElement[] = [];
-    let patternImg: HTMLImageElement | null = null;
-    const totalToLoad = selectedPattern === "plain" ? 4 : 5;
 
     const checkAllLoaded = () => {
-      if (loadedCount === totalToLoad) {
+      if (loadedCount === 4) {
         drawAllElements();
       }
     };
@@ -543,31 +717,23 @@ export default function KoreanPhotobooth({ onProceed }: KoreanPhotoboothProps) {
       };
     });
 
-    if (selectedPattern !== "plain") {
-      patternImg = new Image();
-      patternImg.src = getPatternSvgDataUrl(selectedPattern, selectedFrame);
-      patternImg.onload = () => {
-        loadedCount++;
-        checkAllLoaded();
-      };
-    }
-
     const drawAllElements = () => {
       // A. Draw background frame color
       ctx.fillStyle = frameColorsHex[selectedFrame];
       ctx.fillRect(0, 0, width, height);
 
-      // Draw repeating pattern
-      if (patternImg) {
-        try {
-          const pattern = ctx.createPattern(patternImg, 'repeat');
-          if (pattern) {
-            ctx.fillStyle = pattern;
-            ctx.fillRect(0, 0, width, height);
-          }
-        } catch (e) {
-          console.error("Pattern draw error:", e);
-        }
+      // Draw repeating pattern natively
+      const isDark = selectedFrame === "black";
+      if (selectedPattern === "hearts") {
+        drawHeartsPattern(ctx, width, height, isDark);
+      } else if (selectedPattern === "stars") {
+        drawStarsPattern(ctx, width, height, isDark);
+      } else if (selectedPattern === "polka") {
+        drawPolkaPattern(ctx, width, height, isDark);
+      } else if (selectedPattern === "confetti") {
+        drawConfettiPattern(ctx, width, height, isDark);
+      } else if (selectedPattern === "roses") {
+        drawRosesPattern(ctx, width, height, isDark);
       }
 
       // Subtle premium card noise overlay
@@ -669,6 +835,9 @@ export default function KoreanPhotobooth({ onProceed }: KoreanPhotoboothProps) {
       // D. Generate high quality blob download link
       try {
         const finalDataUrl = offscreenCanvas.toDataURL("image/png");
+        setDownloadedImageUrl(finalDataUrl);
+
+        // Attempt normal desktop download
         const tempLink = document.createElement("a");
         tempLink.href = finalDataUrl;
         tempLink.download = `sabrina_booth_${Date.now()}.png`;
@@ -676,13 +845,7 @@ export default function KoreanPhotobooth({ onProceed }: KoreanPhotoboothProps) {
         tempLink.click();
         document.body.removeChild(tempLink);
 
-        setCameraStatus("Unduhan berhasil! Bersiap untuk Kuis...");
-        
-        // Auto Proceed after beautiful delay
-        setTimeout(() => {
-          onProceed();
-        }, 1800);
-
+        setCameraStatus("Hasil cetakan selesai dirakit! Silakan unduh atau lanjut ke kuis.");
       } catch (err) {
         console.error("Canvas export fail:", err);
         setCameraStatus("Ekspor Gagal - Hubungi Dev");
@@ -1148,10 +1311,95 @@ export default function KoreanPhotobooth({ onProceed }: KoreanPhotoboothProps) {
               <Download size={16} />
               <span>Unduh Cetakan Strip (PNG)</span>
             </button>
+
+            {!capturedImages.includes(null) && (
+              <button
+                onClick={onProceed}
+                className="mt-4 w-full bg-gradient-to-r from-zinc-950 to-zinc-900 hover:from-zinc-900 hover:to-zinc-950 text-[#ffb3c6] border border-[#ffb3c6]/40 hover:border-[#ffb3c6]/80 font-bold py-3.5 rounded-2xl flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(0,0,0,0.5)] transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+              >
+                <span>Lanjut ke Tahap Berikutnya</span>
+                <Sparkles size={14} className="text-[#ffb3c6] animate-pulse" />
+              </button>
+            )}
           </div>
 
         </div>
       </div>
+
+      {/* ── Photo Strip Download Modal (iOS / Mobile Friendly) ── */}
+      <AnimatePresence>
+        {downloadedImageUrl && (
+          <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+            {/* Dark backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/85 backdrop-blur-md"
+              onClick={() => setDownloadedImageUrl(null)}
+            />
+
+            {/* Modal Card */}
+            <motion.div
+              initial={{ scale: 0.9, y: 30, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.9, y: 30, opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 180 }}
+              className="bg-zinc-950/80 border border-zinc-800/80 rounded-3xl p-6 md:p-8 max-w-md w-full flex flex-col items-center shadow-[0_20px_60px_rgba(0,0,0,0.8)] relative max-h-[90vh] overflow-y-auto z-10 backdrop-blur-lg"
+            >
+              {/* Close button */}
+              <button
+                onClick={() => setDownloadedImageUrl(null)}
+                className="absolute top-4 right-4 text-zinc-400 hover:text-white bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-800/50 rounded-full w-8 h-8 flex items-center justify-center text-sm transition-colors cursor-pointer"
+              >
+                ✕
+              </button>
+
+              <div className="flex items-center gap-2 border border-[#ffb3c6]/30 bg-[#ffb3c6]/10 rounded-full px-3.5 py-1 mb-4">
+                <Sparkles size={12} className="text-[#ffb3c6] animate-pulse" />
+                <span className="font-mono text-[10px] text-[#ffb3c6] tracking-widest uppercase">Foto Siap Cetak</span>
+              </div>
+
+              <h3 className="text-xl font-serif text-[#F8F5F2] font-semibold text-center mb-2">
+                Foto Strip Yaya Birthday!
+              </h3>
+              
+              <p className="text-xs text-zinc-400 font-sans text-center mb-6 max-w-[280px] leading-relaxed">
+                {isMobile 
+                  ? "Tekan lama pada foto di bawah ini, lalu pilih 'Simpan Gambar' atau 'Tambah ke Foto' untuk menyimpan ke galeri handphone kamu."
+                  : "Jika unduhan tidak berjalan otomatis, silakan klik kanan pada foto di bawah ini lalu pilih 'Simpan Gambar Sebagai...'"}
+              </p>
+
+              {/* Centered Image Container */}
+              <div className="relative w-full max-w-[220px] aspect-[9/20.7] rounded-xl overflow-hidden border border-zinc-800 shadow-[0_12px_30px_rgba(0,0,0,0.6)] mb-6 bg-zinc-900">
+                <img 
+                  src={downloadedImageUrl} 
+                  alt="Hasil Photobooth" 
+                  className="w-full h-full object-contain"
+                />
+              </div>
+
+              {/* Action buttons */}
+              <div className="flex flex-col gap-2 w-full">
+                <a
+                  href={downloadedImageUrl}
+                  download={`sabrina_booth_${Date.now()}.png`}
+                  className="w-full bg-gradient-to-r from-[#ffb3c6] to-[#ffe5ec] hover:from-[#ffe5ec] hover:to-[#ffb3c6] text-[#0a060d] font-bold py-3 rounded-xl flex items-center justify-center gap-2 text-sm transition-all duration-200 cursor-pointer text-center"
+                >
+                  <Download size={14} />
+                  <span>Unduh Ulang (PNG)</span>
+                </a>
+                <button
+                  onClick={() => setDownloadedImageUrl(null)}
+                  className="w-full bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-zinc-300 py-3 rounded-xl font-sans text-xs transition-colors cursor-pointer"
+                >
+                  Tutup & Kembali Edit
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
